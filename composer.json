@@ -1,0 +1,18 @@
+{
+    "name": "mindk/stud_framework",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "ddavidov",
+            "email": "ddavidov@mindk.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {"Mindk\\Framework\\": "src/"}
+    },
+    "minimum-stability": "dev",
+    "require": {
+        "optimus/onion": "~1.0"
+    }
+}
