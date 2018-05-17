@@ -11,7 +11,7 @@ class RedirectResponse extends Response
 {
     public function redirectTo($url)
     {
-        header("Location: http://$url");
+        header("Location: $url");
     }
 
     public function back()
