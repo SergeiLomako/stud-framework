@@ -35,14 +35,37 @@ abstract class Model
         $this->dbo = $db;
     }
 
+    public function getColumnsNames()
+    {
+        $sql = 'DESCRIBE `' . $this->tableName. '`';
+        $this->dbo->setQuery($sql);
+        $statement = $this->dbo->get('statement');
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
     /**
      * Create new record
      */
     public function create( $data )
     {
+        $table_columns = $this->getColumnsNames();
+        foreach($data as $key => $value){
+            if(!in_array($key, $table_columns)){
+                throw new ModelException('Invalid column names. Expected: ' . implode(',', $table_columns));
+            }
+        }
         $columns = implode(',', array_keys($data));
-        $values = implode(',', array_values($data));
-        $sql = 'INSERT INTO `' . $this->tableName . '` (`'. $columns .'`) VALUES (`' . $values .'`)';
+        $array_values = [];
+        foreach(array_values($data) as $value){
+            if(is_string($value)){
+                $value = '\'' . $value . '\'';
+            }
+            array_push($array_values, $value);
+        }
+
+        $sql = 'INSERT INTO `' . $this->tableName . '` ('. $columns .') VALUES (' .
+            implode(',',$array_values ) . ')';
         return $this->dbo->setQuery($sql);
     }
 
@@ -87,16 +110,5 @@ abstract class Model
 
         return $this->dbo->setQuery($sql)->getList(get_class($this));
     }
-
-    public function getColumnsNames()
-    {
-        $sql = 'DESCRIBE `' . $this->tableName. '`';
-        $this->dbo->setQuery($sql);
-        $statement = $this->dbo->get('statement');
-        $statement->setFetchMode( \PDO::FETCH_COLUMN);
-
-        return $statement->fetchAll(\PDO::FETCH_COLUMN);
-    }
-
 
 }
