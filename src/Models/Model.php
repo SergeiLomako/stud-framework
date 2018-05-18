@@ -4,6 +4,7 @@ namespace Mindk\Framework\Models;
 
 use Mindk\Framework\DB\DBOConnectorInterface;
 use Mindk\Framework\DB\GenericConnector;
+use Mindk\Framework\Exceptions\ModelException;
 
 /**
  * Basic Model Class
