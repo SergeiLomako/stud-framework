@@ -3,6 +3,7 @@
 namespace Mindk\Framework\Routing;
 
 use Mindk\Framework\Exceptions\NotFoundException;
+use Mindk\Framework\Exceptions\RouterException;
 use Mindk\Framework\Http\Request\Request;
 use Mindk\Framework\Routing\Route;
 
@@ -69,7 +70,26 @@ class Router
      * @return  string
      */
     public function buildRoute($name, $params = []): string{
-        // @TODO: Implement this
+        $url = null;
+        if(isset($this->map[$name])){
+            $url = $this->map[$name]['path'];
+            foreach ($params as $key => $value){
+                str_replace('{'.$key.'}', $value, $url);
+            }
+        }
+        if(strpos($url, '{')){
+            $segments = explode('/', $this->map[$name]['path']);
+            $given_params = array_keys($params);
+            $required_params = [];
+            foreach($segments as $segment){
+                if(strpos($segment, '{')){
+                    array_push($required_params, substr($segment,1,-1));
+                }
+            }
+            throw new RouterException('Invalid route parameters. REQUIRED: '
+                .implode(',', $required_params). '; GIVEN: ' . implode(',', $given_params));
+        }
+        return $url;
     }
 
     /**
