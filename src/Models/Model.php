@@ -91,7 +91,7 @@ abstract class Model
     public function getColumnsNames()
     {
         $sql = 'DESCRIBE `' . $this->tableName. '`';
-        $this->setQuery($sql);
+        $this->dbo->setQuery($sql);
         $statement = $this->dbo->get('statement');
         $statement->setFetchMode( \PDO::FETCH_COLUMN);
 
