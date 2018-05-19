@@ -63,9 +63,21 @@ abstract class Model
      *
      * @return bool
      */
-    public function save( int $id, string $key, string $value ) : bool {
-        $sql = sprintf("UPDATE `%s` SET `%s`='%s' WHERE `%s`=" .
-            (int)$id, (string)$this->tableName, (string)$key, (string)$value, (string)$this->primaryKey);
+    public function save() : bool {
+
+        $classVars = get_class_vars(get_class($this));
+        $objectVars = get_object_vars($this);
+
+        foreach ($objectVars as $key => $value) {
+            if(!array_key_exists($key, $classVars)) {
+                $result[] = "`$key`='$value'";
+            }
+        }
+
+        $result = implode(', ', $result);
+
+        $sql = sprintf("UPDATE `%s` SET %s WHERE `%s`=" .
+            (int)$this->{$this->primaryKey}, (string)$this->tableName, (string)$result, (string)$this->primaryKey);
 
         return $this->dbo->setQuery($sql) ? true : false;
     }
