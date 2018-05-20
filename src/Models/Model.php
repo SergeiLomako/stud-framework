@@ -3,6 +3,7 @@
 namespace Mindk\Framework\Models;
 
 use Mindk\Framework\DB\DBOConnectorInterface;
+use Mindk\Framework\DB\GenericConnector;
 
 /**
  * Basic Model Class
@@ -27,9 +28,9 @@ abstract class Model
 
     /**
      * Model constructor.
-     * @param DBOConnectorInterface $db
+     * @param GenericConnector $db
      */
-    public function __construct(DBOConnectorInterface $db)
+    public function __construct(GenericConnector $db)
     {
         $this->dbo = $db;
     }
@@ -37,6 +38,7 @@ abstract class Model
     /**
      * Create new record
      */
+
     public function create( array $data ) {
         $sql = sprintf("INSERT INTO `%s` (`" . implode("`, `", array_keys($data)) .
             "`) VALUES ('" . implode("', '", $data) . "')", (string)$this->tableName);
@@ -51,9 +53,10 @@ abstract class Model
      *
      * @return  object
      */
+  
     public function load( int $id ) {
-        $sql = sprintf("SELECT * FROM `%s` WHERE `%s`=" .
-            (int)$id, (string)$this->tableName, (string)$this->primaryKey);
+        $sql = sprintf("SELECT * FROM `%s` WHERE `%s`= %s,
+                      (string)$this->tableName, (string)$this->primaryKey, (int)$id);
 
         return $this->dbo->setQuery($sql)->getResult($this);
     }
@@ -103,4 +106,16 @@ abstract class Model
 
         return $this->dbo->setQuery($sql)->getList(get_class($this));
     }
+
+    public function getColumnsNames()
+    {
+        $sql = 'DESCRIBE `' . $this->tableName. '`';
+        $this->setQuery($sql);
+        $statement = $this->dbo->get('statement');
+        $statement->setFetchMode( \PDO::FETCH_COLUMN);
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+
 }

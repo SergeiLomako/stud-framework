@@ -136,8 +136,27 @@ class Request
      */
     public function filterVar($data, string $type = 'raw') {
 
-        //@TODO: Add some filtration for data here!
-
+        if($type != 'raw'){
+            switch ($type) {
+                case 'int':
+                    $data = (int) $data;
+                    break;
+                case 'array':
+                    $data = (array) $data;
+                    break;
+                case 'float':
+                    $data = (float) $data;
+                    break;
+                case 'bool':
+                    $data = (bool) $data;
+                    break;
+                case 'string':
+                    $data = (string) $data;
+                    $data = trim(strip_tags(htmlentities($data)));
+                    break;
+            }
+        }
         return $data;
+        
     }
 }

@@ -62,7 +62,8 @@ class GenericConnector implements DBOConnectorInterface
      *
      * @return array
      */
-    public function getList($targetClass = '\stdClass') {
+    public function getList($targetClass = '\stdClass')
+    {
 
         if($this->statement){
             $this->statement->setFetchMode( \PDO::FETCH_CLASS, $targetClass);
@@ -73,4 +74,10 @@ class GenericConnector implements DBOConnectorInterface
 
         return $result;
     }
+
+    public function get($property)
+    {
+        return isset($this->{$property}) ? $this->{$property} : null;
+    }
+
 }
