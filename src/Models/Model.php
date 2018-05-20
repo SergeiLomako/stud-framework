@@ -3,7 +3,6 @@
 namespace Mindk\Framework\Models;
 
 use Mindk\Framework\DB\DBOConnectorInterface;
-use Mindk\Framework\DB\GenericConnector;
 
 /**
  * Basic Model Class
@@ -27,10 +26,10 @@ abstract class Model
     protected $dbo = null;
 
     /**
-     * Model constructor.
-     * @param GenericConnector $db
+     * Model constructor
+     * @param DBOConnectorInterface $db
      */
-    public function __construct(GenericConnector $db)
+    public function __construct(DBOConnectorInterface $db)
     {
         $this->dbo = $db;
     }
@@ -55,7 +54,7 @@ abstract class Model
      */
   
     public function load( int $id ) {
-        $sql = sprintf("SELECT * FROM `%s` WHERE `%s`= %s,
+        $sql = sprintf("SELECT * FROM `%s` WHERE `%s`='%u'",
                       (string)$this->tableName, (string)$this->primaryKey, (int)$id);
 
         return $this->dbo->setQuery($sql)->getResult($this);
@@ -72,25 +71,25 @@ abstract class Model
         $objectVars = get_object_vars($this);
 
         foreach ($objectVars as $key => $value) {
-            if(!array_key_exists($key, $classVars)) {
+            if(!array_key_exists($key, $classVars) && $key !== "{$this->primaryKey}") {
                 $result[] = "`$key`='$value'";
             }
         }
 
         $result = implode(', ', $result);
 
-        $sql = sprintf("UPDATE `%s` SET %s WHERE `%s`=" .
-            (int)$this->{$this->primaryKey}, (string)$this->tableName, (string)$result, (string)$this->primaryKey);
+        $sql = sprintf("UPDATE `%s` SET %s WHERE `%s`='%u'",
+            (string)$this->tableName, (string)$result, (string)$this->primaryKey, (int)$this->{$this->primaryKey});
 
-        return $this->dbo->setQuery($sql) ? true : false;
+        return ($this->dbo->setQuery($sql) !== false) ? true : false;
     }
 
     /**
      * Delete record from DB
      */
     public function delete( int $id ) {
-        $sql = sprintf("DELETE FROM `%s` WHERE `%s`=" .
-            (int)$id, (string)$this->tableName, (string)$this->primaryKey);
+        $sql = sprintf("DELETE FROM `%s` WHERE `%s`='%u'",
+            (string)$this->tableName, (string)$this->primaryKey, (int)$id);
 
         $this->dbo->setQuery($sql);
     }
@@ -107,6 +106,11 @@ abstract class Model
         return $this->dbo->setQuery($sql)->getList(get_class($this));
     }
 
+    /**
+     * Gets columns names
+     *
+     * @return mixed
+     */
     public function getColumnsNames()
     {
         $sql = 'DESCRIBE `' . $this->tableName. '`';
@@ -116,6 +120,4 @@ abstract class Model
 
         return $statement->fetchAll(\PDO::FETCH_COLUMN);
     }
-
-
 }
