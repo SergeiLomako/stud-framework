@@ -38,12 +38,12 @@ abstract class Model
     /**
      * Create new record
      */
-    public function create( $data )
-    {
-        $columns = implode(',', array_keys($data));
-        $values = implode(',', array_values($data));
-        $sql = 'INSERT INTO `' . $this->tableName . '` (`'. $columns .'`) VALUES (`' . $values .'`)';
-        return $this->dbo->setQuery($sql);
+
+    public function create( array $data ) {
+        $sql = sprintf("INSERT INTO `%s` (`" . implode("`, `", array_keys($data)) .
+            "`) VALUES ('" . implode("', '", $data) . "')", (string)$this->tableName);
+
+        $this->dbo->setQuery($sql);
     }
 
     /**
@@ -53,10 +53,10 @@ abstract class Model
      *
      * @return  object
      */
-    public function load( $id )
-    {
-        $sql = 'SELECT * FROM `' . $this->tableName .
-            '` WHERE `'.$this->primaryKey.'`='.(int)$id; //!
+  
+    public function load( int $id ) {
+        $sql = sprintf("SELECT * FROM `%s` WHERE `%s`= %s,
+                      (string)$this->tableName, (string)$this->primaryKey, (int)$id);
 
         return $this->dbo->setQuery($sql)->getResult($this);
     }
@@ -66,15 +66,33 @@ abstract class Model
      *
      * @return bool
      */
-    public function save() {
-        //@TODO: Implement this
+    public function save() : bool {
+
+        $classVars = get_class_vars(get_class($this));
+        $objectVars = get_object_vars($this);
+
+        foreach ($objectVars as $key => $value) {
+            if(!array_key_exists($key, $classVars)) {
+                $result[] = "`$key`='$value'";
+            }
+        }
+
+        $result = implode(', ', $result);
+
+        $sql = sprintf("UPDATE `%s` SET %s WHERE `%s`=" .
+            (int)$this->{$this->primaryKey}, (string)$this->tableName, (string)$result, (string)$this->primaryKey);
+
+        return $this->dbo->setQuery($sql) ? true : false;
     }
 
     /**
      * Delete record from DB
      */
-    public function delete() {
-        //@TODO: Implement this
+    public function delete( int $id ) {
+        $sql = sprintf("DELETE FROM `%s` WHERE `%s`=" .
+            (int)$id, (string)$this->tableName, (string)$this->primaryKey);
+
+        $this->dbo->setQuery($sql);
     }
 
     /**
@@ -82,8 +100,9 @@ abstract class Model
      *
      * @return array
      */
-    public function getList() {
-        $sql = 'SELECT * FROM `' . $this->tableName . '`';
+    public function getList( string $columnName = '*' ) {
+        $sql = sprintf("SELECT `%s` FROM `%s`",
+            (string)$columnName, (string)$this->tableName);
 
         return $this->dbo->setQuery($sql)->getList(get_class($this));
     }

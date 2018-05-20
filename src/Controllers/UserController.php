@@ -3,9 +3,10 @@
 namespace Mindk\Framework\Controllers;
 
 use Mindk\Framework\Exceptions\AuthRequiredException;
+// use Mindk\Framework\Exceptions\IncorrectInputException;
 use Mindk\Framework\Http\Request\Request;
 use Mindk\Framework\Models\UserModel;
-use Mindk\Framework\DB\DBOConnectorInterface;
+use Mindk\Framework\Http\Response\JsonResponse;
 
 /**
  * Class UserController
@@ -13,8 +14,61 @@ use Mindk\Framework\DB\DBOConnectorInterface;
  */
 class UserController
 {
+    /**
+     * Register through action
+     *
+     * @param Request $request
+     * @param UserModel $model
+     */
     public function register(Request $request, UserModel $model) {
-        //@TODO: Implement
+
+        $loginColumnName = 'email';
+        $errors = [];
+
+        $login = $request->get('login', '', 'string');
+        $password = $request->get('password', '', 'string');
+        $confirmPassword = $request->get('confirm_password', '', 'string');
+
+
+
+        if(!empty($login) && filter_var($login, FILTER_VALIDATE_EMAIL)) {
+
+            foreach ($model->getList( $loginColumnName ) as $value) {
+                if ($value->{$loginColumnName} === $login) {
+                    $errors['email'] = 'This e-mail address is already registered.';
+                    break;
+                }
+            }
+
+            if($password === $confirmPassword) {
+                if(!empty($password) && strlen($password) > 3 && strlen($password) < 17) {
+
+                    $token = md5(uniqid());
+
+                    $model->create( array($loginColumnName => $login,
+                        'password' => md5($password), 'token' => $token) );
+
+                } else {
+                    $errors['password'] = 'Password length should be between 4 and 16 symbols.';
+                }
+
+            } else {
+                $errors['password'] = 'Passwords do not match.';
+            }
+
+        } else {
+            $errors['email'] = 'Please, provide a correct e-mail address.';
+        }
+
+
+
+        $response = new JsonResponse($errors);
+
+        if (!empty($token)) {
+            $response->setHeader('X-Auth', $token);
+        }
+
+        $response->send();
     }
 
     /**
@@ -23,10 +77,9 @@ class UserController
      * @param Request $request
      * @param UserModel $model
      *
-     * @return mixed
      * @throws AuthRequiredException
      */
-    public function login(Request $request, UserModel $model, DBOConnectorInterface $dbo) {
+    public function login(Request $request, UserModel $model) {
 
         if($login = $request->get('login', '', 'string')) {
 
@@ -39,14 +92,21 @@ class UserController
 
         // Generate new access token and save:
         $user->token = md5(uniqid());
-        //$user->save();
-        //@TODO: REMOVE THIS when UserModel::save() implemented
-        $dbo->setQuery("UPDATE `users` SET `token`='".$user->token."' WHERE `id`=".(int)$user->id);
+        $user->save();
 
-        return $user->token;
+        $response = new JsonResponse(null);
+        $response->setHeader('X-Auth', $user->token);
+        $response->send();
+
+        //return $user->token;
     }
 
+    /**
+     * Logout
+     *
+     * @param Request $request
+     */
     public function logout(Request $request) {
-        //@TODO: Implement
+        $request->headers['X-Auth'] = null;
     }
 }
