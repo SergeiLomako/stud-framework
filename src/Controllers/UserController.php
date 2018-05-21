@@ -3,7 +3,6 @@
 namespace Mindk\Framework\Controllers;
 
 use Mindk\Framework\Exceptions\AuthRequiredException;
-// use Mindk\Framework\Exceptions\IncorrectInputException;
 use Mindk\Framework\Http\Request\Request;
 use Mindk\Framework\Models\UserModel;
 use Mindk\Framework\Http\Response\JsonResponse;
@@ -15,6 +14,13 @@ use Mindk\Framework\Http\Response\JsonResponse;
 class UserController
 {
     /**
+     * @var string  DB Table standard keys
+     */
+    protected $loginName = 'login';
+    protected $passwordName = 'password';
+    protected $tokenName = 'auth_token';
+
+    /**
      * Register through action
      *
      * @param Request $request
@@ -22,44 +28,43 @@ class UserController
      */
     public function register(Request $request, UserModel $model) {
 
-        $loginColumnName = 'email';
         $errors = [];
 
-        $login = $request->get('login', '', 'string');
-        $password = $request->get('password', '', 'string');
-        $confirmPassword = $request->get('confirm_password', '', 'string');
-
+        $login = $request->get($this->loginName, '', 'string');
+        $password = $request->get($this->passwordName, '', 'string');
+        $confirmPassword = $request->get('confirm_' . $this->passwordName, '', 'string');
 
 
         if(!empty($login) && filter_var($login, FILTER_VALIDATE_EMAIL)) {
 
-            foreach ($model->getList( $loginColumnName ) as $value) {
-                if ($value->{$loginColumnName} === $login) {
-                    $errors['email'] = 'This e-mail address is already registered.';
+            foreach ($model->getList( $this->loginName ) as $value) {
+
+                if ($value->{$this->loginName} === $login) {
+                    $errors["$this->loginName"] = 'This e-mail address is already registered.';
                     break;
                 }
             }
 
             if($password === $confirmPassword) {
-                if(!empty($password) && strlen($password) > 3 && strlen($password) < 17) {
+
+                if(!empty($password) && strlen($password) > 5 && strlen($password) < 17) {
 
                     $token = md5(uniqid());
 
-                    $model->create( array($loginColumnName => $login,
-                        'password' => md5($password), 'token' => $token) );
+                    $model->create( array($this->loginName => $login,
+                        $this->passwordName => md5($password), $this->tokenName => $token) );
 
                 } else {
-                    $errors['password'] = 'Password length should be between 4 and 16 symbols.';
+                    $errors["$this->passwordName"] = 'Password length should be between 6 and 16 symbols.';
                 }
 
             } else {
-                $errors['password'] = 'Passwords do not match.';
+                $errors["$this->passwordName"] = 'Passwords do not match.';
             }
 
         } else {
-            $errors['email'] = 'Please, provide a correct e-mail address.';
+            $errors["$this->loginName"] = 'Please, provide a correct e-mail address.';
         }
-
 
 
         $response = new JsonResponse($errors);
@@ -91,14 +96,14 @@ class UserController
         }
 
         // Generate new access token and save:
-        $user->token = md5(uniqid());
+        $user->{$this->tokenName} = md5(uniqid());
         $user->save();
 
         $response = new JsonResponse(null);
-        $response->setHeader('X-Auth', $user->token);
+        $response->setHeader('X-Auth', $user->{$this->tokenName});
         $response->send();
 
-        //return $user->token;
+        //return $user->{$this->tokenName};
     }
 
     /**

@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: dimmask
- * Date: 11.04.18
- * Time: 20:10
- */
 
 namespace Mindk\Framework\Models;
 
@@ -15,9 +9,12 @@ namespace Mindk\Framework\Models;
 class UserModel extends Model
 {
     /**
-     * @var string  DB Table name
+     * @var string  DB Table standard keys
      */
     protected $tableName = 'users';
+    protected $loginName = 'login';
+    protected $passwordName = 'password';
+    protected $tokenName = 'auth_token';
 
     /**
      * Find user by credentials
@@ -27,8 +24,9 @@ class UserModel extends Model
      *
      * @return mixed
      */
-    public function findByCredentials($login, $password){
-        $sql = sprintf("SELECT * FROM `%s` WHERE `email`='%s' AND `password`='%s'", $this->tableName, $login, md5($password));
+    public function findByCredentials($login, $password) {
+        $sql = sprintf("SELECT * FROM `%s` WHERE `%s`='%s' AND `%s`='%s'",
+            $this->tableName, $this->loginName, (string)$login, $this->passwordName, (string)( md5($password) ));
 
         return $this->dbo->setQuery($sql)->getResult($this);
     }
@@ -40,9 +38,10 @@ class UserModel extends Model
      *
      * @return mixed
      */
-    public function findByToken($token){
+    public function findByToken($token) {
         $token = filter_var($token, FILTER_SANITIZE_STRING);
-        $sql = sprintf("SELECT * FROM `%s` WHERE `token`='%s'", $this->tableName, $token);
+        $sql = sprintf("SELECT * FROM `%s` WHERE `%s`='%s'",
+            $this->tableName, $this->tokenName, (string)$token );
 
         return $this->dbo->setQuery($sql)->getResult($this);
     }

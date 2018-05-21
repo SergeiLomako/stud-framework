@@ -11,14 +11,12 @@ use Mindk\Framework\DB\DBOConnectorInterface;
 abstract class Model
 {
     /**
-     * @var string  DB Table name
+     * @var string  DB Table standard keys
      */
     protected $tableName = '';
-
-    /**
-     * @var string  DB Table primary key
-     */
     protected $primaryKey = 'id';
+    protected $createdAt = 'created_at';
+    protected $updatedAt = 'updated_at';
 
     /**
      * @var null
@@ -37,10 +35,13 @@ abstract class Model
     /**
      * Create new record
      */
-
     public function create( array $data ) {
-        $sql = sprintf("INSERT INTO `%s` (`" . implode("`, `", array_keys($data)) .
-            "`) VALUES ('" . implode("', '", $data) . "')", (string)$this->tableName);
+
+        $keys = implode("`, `", array_keys($data));
+        $values = implode("', '", $data);
+
+        $sql = sprintf("INSERT INTO `%s` (`%s`) VALUES ('%s')",
+            (string)$this->tableName, (string)$keys, (string)$values);
 
         $this->dbo->setQuery($sql);
     }
@@ -52,10 +53,10 @@ abstract class Model
      *
      * @return  object
      */
-  
     public function load( int $id ) {
+
         $sql = sprintf("SELECT * FROM `%s` WHERE `%s`='%u'",
-                      (string)$this->tableName, (string)$this->primaryKey, (int)$id);
+                      (string)$this->tableName, $this->primaryKey, $id);
 
         return $this->dbo->setQuery($sql)->getResult($this);
     }
@@ -71,7 +72,9 @@ abstract class Model
         $objectVars = get_object_vars($this);
 
         foreach ($objectVars as $key => $value) {
-            if(!array_key_exists($key, $classVars) && $key !== "{$this->primaryKey}") {
+            if(!array_key_exists($key, $classVars) &&
+                $key !== $this->primaryKey && $key !== $this->createdAt && $key !== $this->updatedAt ) {
+
                 $result[] = "`$key`='$value'";
             }
         }
@@ -79,7 +82,7 @@ abstract class Model
         $result = implode(', ', $result);
 
         $sql = sprintf("UPDATE `%s` SET %s WHERE `%s`='%u'",
-            (string)$this->tableName, (string)$result, (string)$this->primaryKey, (int)$this->{$this->primaryKey});
+            (string)$this->tableName, (string)$result, $this->primaryKey, (int)$this->{$this->primaryKey});
 
         return ($this->dbo->setQuery($sql) !== false) ? true : false;
     }
@@ -88,8 +91,9 @@ abstract class Model
      * Delete record from DB
      */
     public function delete( int $id ) {
+
         $sql = sprintf("DELETE FROM `%s` WHERE `%s`='%u'",
-            (string)$this->tableName, (string)$this->primaryKey, (int)$id);
+            (string)$this->tableName, $this->primaryKey, $id);
 
         $this->dbo->setQuery($sql);
     }
@@ -100,8 +104,9 @@ abstract class Model
      * @return array
      */
     public function getList( string $columnName = '*' ) {
+
         $sql = sprintf("SELECT `%s` FROM `%s`",
-            (string)$columnName, (string)$this->tableName);
+            $columnName, (string)$this->tableName);
 
         return $this->dbo->setQuery($sql)->getList(get_class($this));
     }
