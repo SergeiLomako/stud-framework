@@ -14,40 +14,41 @@ use Mindk\Framework\Http\Response\JsonResponse;
  */
 class UserController
 {
-    public function register(Request $request, UserModel $model) {
-        print_r('test11');
+    public function register(Request $request, UserModel $model)
+    {
         $errors = [];
         $email = null;
         $password = null;
-        if($request->get('email', '', 'email')){
-            if(!empty($model->findByEmail($request->get('email', '', 'email')))){
+        if ($request->get('email', '', 'email')) {
+            if (empty($model->findByEmail($request->get('email', '', 'email')))) {
                 $email = $request->get('email', '', 'email');
-            }
-            else {
+            } else {
                 array_push($errors, ['email' => 'Email already exists']);
             }
+        } else {
+            $errors['email'] = 'Incorrect email';
         }
-        if(strlen($request->get('password', '')) > 5 && $request->get('password', '') === $request->get('confirm_password', '')){
+        if (strlen($request->get('password', '')) > 5 && $request->get('password', '') === $request->get('confirm_password', '')) {
             $password = $request->get('password', '');
-        }
-        elseif(strlen($request->get('password', '')) <= 5){
-            array_push($errors, ['password' => 'password must be at least 6 characters']);
-        }
-        else {
-            array_push($errors, ['password' => 'passwords do not match']);
+        } elseif (strlen($request->get('password', '')) <= 5) {
+            array_push($errors, ['password' => 'Password must be at least 6 characters']);
+        } else {
+            array_push($errors, ['password' => 'Passwords do not match']);
         }
 
         $status = null;
-        if(empty($errors)){
-            $model->create(['email' => $email, 'password' => password_hash($password, PASSWORD_DEFAULT)]);
-            $status = 'success';
-        }
-        else {
+        $code = 200;
+        if (empty($errors)) {
+            $token = md5(uniqid());
+            $model->create(['email' => $email, 'password' => md5($password), 'token' => $token]);
+            $status = ['token' => $token];
+        } else {
             $status = $errors;
+            $code = 400;
         }
-        $response = new JsonResponse($status);
-        $response->send();
 
+        $response = new JsonResponse($status, $code);
+        $response->send();
     }
 
     /**
@@ -72,8 +73,7 @@ class UserController
 
         // Generate new access token and save:
         $user->token = md5(uniqid());
-        //$user->save();
-        //@TODO: REMOVE THIS when UserModel::save() implemented
+        $user->save();
         $dbo->setQuery("UPDATE `users` SET `token`='".$user->token."' WHERE `id`=".(int)$user->id);
 
         return $user->token;
