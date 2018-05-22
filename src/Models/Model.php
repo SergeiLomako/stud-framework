@@ -79,7 +79,7 @@ abstract class Model
      */
   
     public function load( int $id ) {
-        $sql = sprintf("SELECT * FROM `%s` WHERE `%s`= %s,
+        $sql = sprintf("SELECT * FROM `%s` WHERE `%s`= %s",
                       (string)$this->tableName, (string)$this->primaryKey, (int)$id);
 
         return $this->dbo->setQuery($sql)->getResult($this);
