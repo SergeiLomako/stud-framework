@@ -46,4 +46,10 @@ class UserModel extends Model
 
         return $this->dbo->setQuery($sql)->getResult($this);
     }
+
+    public function findByEmail($email){
+        $sql = sprintf("SELECT * FROM `%s` WHERE `email`='%s'", $this->tableName, $email);
+
+        return $this->dbo->setQuery($sql)->getResult($this);
+    }
 }

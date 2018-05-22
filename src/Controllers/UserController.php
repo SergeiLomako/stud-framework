@@ -3,9 +3,9 @@
 namespace Mindk\Framework\Controllers;
 
 use Mindk\Framework\Exceptions\AuthRequiredException;
-// use Mindk\Framework\Exceptions\IncorrectInputException;
 use Mindk\Framework\Http\Request\Request;
 use Mindk\Framework\Models\UserModel;
+use Mindk\Framework\DB\DBOConnectorInterface;
 use Mindk\Framework\Http\Response\JsonResponse;
 
 /**
@@ -14,62 +14,38 @@ use Mindk\Framework\Http\Response\JsonResponse;
  */
 class UserController
 {
-    /**
-     * Register through action
-     *
-     * @param Request $request
-     * @param UserModel $model
-     */
-    public function register(Request $request, UserModel $model) {
-
-        $loginColumnName = 'email';
+    public function register(Request $request, UserModel $model)
+    {
         $errors = [];
-
-        $login = $request->get('login', '', 'string');
-        $password = $request->get('password', '', 'string');
-        $confirmPassword = $request->get('confirm_password', '', 'string');
-
-
-
-        if(!empty($login) && filter_var($login, FILTER_VALIDATE_EMAIL)) {
-
-            foreach ($model->getList( $loginColumnName ) as $value) {
-                if ($value->{$loginColumnName} === $login) {
-                    $errors['email'] = 'This e-mail address is already registered.';
-                    break;
-                }
-            }
-
-            if($password === $confirmPassword) {
-                if(!empty($password) && strlen($password) > 3 && strlen($password) < 17) {
-
-                    $token = md5(uniqid());
-
-                    $model->create( array($loginColumnName => $login,
-                        'password' => md5($password), 'token' => $token) );
-
-                } else {
-                    $errors['password'] = 'Password length should be between 4 and 16 symbols.';
-                }
-
+        if ($request->get('login', '', 'email')) {
+            if (empty($model->findByEmail($request->get('login', '', 'email')))) {
+                $login = $request->get('login', '', 'email');
             } else {
-                $errors['password'] = 'Passwords do not match.';
+                array_push($errors, ['login' => 'Email already exists']);
             }
-
         } else {
-            $errors['email'] = 'Please, provide a correct e-mail address.';
+            $errors['login'] = 'Incorrect email';
+        }
+        if (strlen($request->get('password', '')) > 5 && $request->get('password', '') === $request->get('confirm_password', '')) {
+            $password = $request->get('password', '');
+        } elseif (strlen($request->get('password', '')) <= 5) {
+            array_push($errors, ['password' => 'Password must be at least 6 characters']);
+        } else {
+            array_push($errors, ['password' => 'Passwords do not match']);
         }
 
-
-
-        $response = new JsonResponse($errors);
-
-        if (!empty($token)) {
-            $response->setHeader('X-Auth', $token);
+        $status = null;
+        $code = 200;
+        if (empty($errors)) {
+            $token = md5(uniqid());
+            $model->create(['login' => $login, 'password' => md5($password), 'auth_token' => $token]);
+            $status = ['token' => $token];
+        } else {
+            $status = $errors;
+            $code = 400;
         }
-
-        $response->send();
-    }
+      
+        return new JsonResponse($status, $code);
 
     /**
      * Login through action
@@ -91,14 +67,11 @@ class UserController
         }
 
         // Generate new access token and save:
-        $user->token = md5(uniqid());
+        $user->auth_token = md5(uniqid());
         $user->save();
-
-        $response = new JsonResponse(null);
-        $response->setHeader('X-Auth', $user->token);
-        $response->send();
-
-        //return $user->token;
+      
+        return $user->auth_token;
+       
     }
 
     /**
@@ -106,7 +79,11 @@ class UserController
      *
      * @param Request $request
      */
-    public function logout(Request $request) {
-        $request->headers['X-Auth'] = null;
+    public function logout(Request $request, UserModel $model) {
+        $user = $model->findByToken($request->getHeader('X-Auth'));
+        if($user){
+          $user->auth_token = 0;
+          $user->save();
+        }
     }
 }
