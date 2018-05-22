@@ -46,6 +46,8 @@ class UserController
         }
       
         return new JsonResponse($status, $code);
+        
+    }    
 
     /**
      * Login through action
