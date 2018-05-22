@@ -3,7 +3,6 @@
 namespace Mindk\Framework\Models;
 
 use Mindk\Framework\DB\DBOConnectorInterface;
-use Mindk\Framework\DB\GenericConnector;
 use Mindk\Framework\Exceptions\ModelException;
 
 /**
@@ -31,7 +30,7 @@ abstract class Model
      * Model constructor.
      * @param GenericConnector $db
      */
-    public function __construct(GenericConnector $db)
+    public function __construct(DBOConnectorInterface $db)
     {
         $this->dbo = $db;
     }
