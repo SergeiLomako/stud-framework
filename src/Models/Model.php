@@ -3,6 +3,7 @@
 namespace Mindk\Framework\Models;
 
 use Mindk\Framework\DB\DBOConnectorInterface;
+use Mindk\Framework\Exceptions\ModelException;
 
 /**
  * Basic Model Class
@@ -34,8 +35,21 @@ abstract class Model
 
     /**
      * Create new record
+     *
+     * @param array $data
+     * @throws ModelException
      */
     public function create( array $data ) {
+
+        $dataColumns = array_keys($data);
+        $tableColumns = array_values($this->getColumnsNames());
+
+        if($dataColumns !== array_intersect($dataColumns, $tableColumns) ||
+            $tableColumns !== array_intersect($tableColumns, $dataColumns)) {
+
+            throw new ModelException('Invalid column names. Expected: ' .
+                implode(', ', $tableColumns) . '. Received: ' . implode(', ', $dataColumns) . '.');
+        }
 
         $keys = implode("`, `", array_keys($data));
         $values = implode("', '", $data);
@@ -112,17 +126,27 @@ abstract class Model
     }
 
     /**
-     * Gets columns names
+     * Gets columns names of a table
      *
      * @return mixed
      */
     public function getColumnsNames()
     {
-        $sql = 'DESCRIBE `' . $this->tableName. '`';
-        $this->setQuery($sql);
-        $statement = $this->dbo->get('statement');
-        $statement->setFetchMode( \PDO::FETCH_COLUMN);
 
-        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+        $sql = sprintf("DESCRIBE `%s`",
+            (string)$this->tableName);
+
+        $columnsInfo = $this->dbo->setQuery($sql)->getList(get_class($this));
+
+        foreach ($columnsInfo as $value) {
+
+            if ($value->Field !== $this->primaryKey && $value->Field !== $this->createdAt &&
+                $value->Field !== $this->updatedAt) {
+
+                $result[] = $value->Field;
+            }
+        }
+
+        return !empty($result) ? $result : null;
     }
 }

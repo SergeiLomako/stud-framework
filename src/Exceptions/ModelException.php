@@ -3,10 +3,10 @@
 namespace Mindk\Framework\Exceptions;
 
 /**
- * Class AuthRequiredException
+ * Class ModelException
  * @package Mindk\Framework\Exceptions
  */
-class IncorrectInputException extends FrameworkException
+class ModelException extends FrameworkException
 {
 
 }

@@ -19,12 +19,15 @@ class UserController
     protected $loginName = 'login';
     protected $passwordName = 'password';
     protected $tokenName = 'auth_token';
+    protected $roleName = 'role_id';
+    protected $defaultRoleId = 2;
 
     /**
      * Register through action
      *
      * @param Request $request
      * @param UserModel $model
+     * @throws \Mindk\Framework\Exceptions\ModelException
      */
     public function register(Request $request, UserModel $model) {
 
@@ -51,8 +54,8 @@ class UserController
 
                     $token = md5(uniqid());
 
-                    $model->create( array($this->loginName => $login,
-                        $this->passwordName => md5($password), $this->tokenName => $token) );
+                    $model->create( array($this->loginName => $login, $this->passwordName => md5($password),
+                        $this->tokenName => $token, $this->roleName => $this->defaultRoleId) );
 
                 } else {
                     $errors["$this->passwordName"] = 'Password length should be between 6 and 16 symbols.';
@@ -82,6 +85,7 @@ class UserController
      * @param Request $request
      * @param UserModel $model
      *
+     * @return mixed
      * @throws AuthRequiredException
      */
     public function login(Request $request, UserModel $model) {
@@ -103,7 +107,7 @@ class UserController
         $response->setHeader('X-Auth', $user->{$this->tokenName});
         $response->send();
 
-        //return $user->{$this->tokenName};
+        return $user->{$this->tokenName};
     }
 
     /**
