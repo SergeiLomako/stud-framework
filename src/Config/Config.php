@@ -16,15 +16,29 @@ class Config
     protected static $config = [];
 
     /**
-     * Config constructor.
-     * @param array $data
+     * @var object  Instance of Config class
      */
-    public function __construct($data = [])
+    protected static $instance;
+
+    /**
+     * Closed Config constructor and clone.
+     */
+    protected function __construct() { }
+    protected function __clone() { }
+
+    /**
+     * Config getInstance Singleton
+     * @param array $data
+     * @return Config
+     */
+    public static function getInstance($data = [])
     {
         if(empty(self::$config) && !empty($data))
         {
-            $this->set($data);
+            self::set($data);
         }
+
+        return is_object(self::$instance) ? self::$instance : self::$instance = new self();
     }
 
     /**
@@ -41,7 +55,7 @@ class Config
      *
      * @param $data
      */
-    public function set($data){
+    public static function set($data){
         self::$config = $data;
     }
 

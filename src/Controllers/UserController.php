@@ -17,16 +17,14 @@ class UserController
     public function register(Request $request, UserModel $model)
     {
         $errors = [];
-        $email = null;
-        $password = null;
-        if ($request->get('email', '', 'email')) {
-            if (empty($model->findByEmail($request->get('email', '', 'email')))) {
-                $email = $request->get('email', '', 'email');
+        if ($request->get('login', '', 'email')) {
+            if (empty($model->findByEmail($request->get('login', '', 'email')))) {
+                $login = $request->get('login', '', 'email');
             } else {
-                array_push($errors, ['email' => 'Email already exists']);
+                array_push($errors, ['login' => 'Email already exists']);
             }
         } else {
-            $errors['email'] = 'Incorrect email';
+            $errors['login'] = 'Incorrect email';
         }
         if (strlen($request->get('password', '')) > 5 && $request->get('password', '') === $request->get('confirm_password', '')) {
             $password = $request->get('password', '');
@@ -40,7 +38,7 @@ class UserController
         $code = 200;
         if (empty($errors)) {
             $token = md5(uniqid());
-            $model->create(['email' => $email, 'password' => md5($password), 'token' => $token]);
+            $model->create(['login' => $login, 'password' => md5($password), 'auth_token' => $token]);
             $status = ['token' => $token];
         } else {
             $status = $errors;
@@ -48,6 +46,7 @@ class UserController
         }
 
         return new JsonResponse($status, $code);
+
     }
 
     /**
@@ -56,10 +55,9 @@ class UserController
      * @param Request $request
      * @param UserModel $model
      *
-     * @return mixed
      * @throws AuthRequiredException
      */
-    public function login(Request $request, UserModel $model, DBOConnectorInterface $dbo) {
+    public function login(Request $request, UserModel $model) {
 
         if($login = $request->get('login', '', 'string')) {
 
@@ -71,14 +69,23 @@ class UserController
         }
 
         // Generate new access token and save:
-        $user->token = md5(uniqid());
+        $user->auth_token = md5(uniqid());
         $user->save();
-        $dbo->setQuery("UPDATE `users` SET `token`='".$user->token."' WHERE `id`=".(int)$user->id);
+      
+        return $user->auth_token;
 
-        return $user->token;
     }
 
-    public function logout(Request $request) {
-        //@TODO: Implement
+    /**
+     * Logout
+     *
+     * @param Request $request
+     */
+    public function logout(Request $request, UserModel $model) {
+        $user = $model->findByToken($request->getHeader('X-Auth'));
+        if($user){
+          $user->auth_token = 0;
+          $user->save();
+        }
     }
 }
