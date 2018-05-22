@@ -47,8 +47,7 @@ class UserController
             $code = 400;
         }
 
-        $response = new JsonResponse($status, $code);
-        $response->send();
+        return new JsonResponse($status, $code);
     }
 
     /**
