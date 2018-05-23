@@ -14,10 +14,10 @@ abstract class Model
     /**
      * @var string  DB Table standard keys
      */
-    protected $tableName = '';
-    protected $primaryKey = 'id';
-    protected $createdAt = 'created_at';
-    protected $updatedAt = 'updated_at';
+    const TABLE_NAME = '';
+    const PRIMARY_KEY = 'id';
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
 
     /**
      * @var null
@@ -39,23 +39,39 @@ abstract class Model
      * @param array $data
      * @throws ModelException
      */
-    public function create( array $data ) {
+    public function create( array $inputData ) {
 
-        $dataColumns = array_keys($data);
-        $tableColumns = array_values($this->getColumnsNames());
+        $tableData = $this->getColumnsNames();
 
-        if($dataColumns !== array_intersect($dataColumns, $tableColumns) ||
-            $tableColumns !== array_intersect($tableColumns, $dataColumns)) {
+        $tableKeysDiff = array_diff_key($tableData, $inputData);
+        $inputKeysDiff = array_diff_key($inputData, $tableData);
+
+        if( $tableKeysDiff && !$inputKeysDiff) {
+
+            foreach( $tableKeysDiff as $key => $value) {
+
+                if (!empty($tableData[$key])) {
+                    $inputData[$key] = $tableData[$key];
+                } else {
+
+                    throw new ModelException('Invalid column names. Expected: ' .
+                        implode(', ', array_keys($tableData)) . '. Received: ' .
+                        implode(', ', array_keys($inputData)) . '.');
+                }
+            }
+
+        } else {
 
             throw new ModelException('Invalid column names. Expected: ' .
-                implode(', ', $tableColumns) . '. Received: ' . implode(', ', $dataColumns) . '.');
+                implode(', ', array_keys($tableData)) . '. Received: ' .
+                implode(', ', array_keys($inputData)) . '.');
         }
 
-        $keys = implode("`, `", array_keys($data));
-        $values = implode("', '", $data);
+        $keys = implode("`, `", array_keys($inputData));
+        $values = implode("', '", $inputData);
 
         $sql = sprintf("INSERT INTO `%s` (`%s`) VALUES ('%s')",
-            (string)$this->tableName, (string)$keys, (string)$values);
+            (string)$this::TABLE_NAME, (string)$keys, (string)$values);
 
         $this->dbo->setQuery($sql);
     }
@@ -70,7 +86,7 @@ abstract class Model
     public function load( int $id ) {
 
         $sql = sprintf("SELECT * FROM `%s` WHERE `%s`='%u'",
-                      (string)$this->tableName, $this->primaryKey, $id);
+                      (string)$this::TABLE_NAME, $this::PRIMARY_KEY, $id);
 
         return $this->dbo->setQuery($sql)->getResult($this);
     }
@@ -87,7 +103,7 @@ abstract class Model
 
         foreach ($objectVars as $key => $value) {
             if(!array_key_exists($key, $classVars) &&
-                $key !== $this->primaryKey && $key !== $this->createdAt && $key !== $this->updatedAt ) {
+                $key !== $this::PRIMARY_KEY && $key !== $this::CREATED_AT && $key !== $this::UPDATED_AT ) {
 
                 $result[] = "`$key`='$value'";
             }
@@ -96,7 +112,7 @@ abstract class Model
         $result = implode(', ', $result);
 
         $sql = sprintf("UPDATE `%s` SET %s WHERE `%s`='%u'",
-            (string)$this->tableName, (string)$result, $this->primaryKey, (int)$this->{$this->primaryKey});
+            (string)$this::TABLE_NAME, (string)$result, $this::PRIMARY_KEY, (int)$this->{$this::PRIMARY_KEY});
 
         return ($this->dbo->setQuery($sql) !== false) ? true : false;
     }
@@ -107,7 +123,18 @@ abstract class Model
     public function delete( int $id ) {
 
         $sql = sprintf("DELETE FROM `%s` WHERE `%s`='%u'",
-            (string)$this->tableName, $this->primaryKey, $id);
+            (string)$this::TABLE_NAME, $this::PRIMARY_KEY, $id);
+
+        $this->dbo->setQuery($sql);
+    }
+
+    /**
+     * Clear column value
+     */
+    public function clearValue( int $id, string $column ) {
+
+        $sql = sprintf("UPDATE `%s` SET `%s`='' WHERE `%s`='%u'",
+            (string)$this::TABLE_NAME, $column, $this::PRIMARY_KEY, $id);
 
         $this->dbo->setQuery($sql);
     }
@@ -120,7 +147,7 @@ abstract class Model
     public function getList( string $columnName = '*' ) {
 
         $sql = sprintf("SELECT `%s` FROM `%s`",
-            $columnName, (string)$this->tableName);
+            $columnName, (string)$this::TABLE_NAME);
 
         return $this->dbo->setQuery($sql)->getList(get_class($this));
     }
@@ -134,16 +161,16 @@ abstract class Model
     {
 
         $sql = sprintf("DESCRIBE `%s`",
-            (string)$this->tableName);
+            (string)$this::TABLE_NAME);
 
         $columnsInfo = $this->dbo->setQuery($sql)->getList(get_class($this));
 
         foreach ($columnsInfo as $value) {
 
-            if ($value->Field !== $this->primaryKey && $value->Field !== $this->createdAt &&
-                $value->Field !== $this->updatedAt) {
+            if ($value->Field !== $this::PRIMARY_KEY && $value->Field !== $this::CREATED_AT &&
+                $value->Field !== $this::UPDATED_AT) {
 
-                $result[] = $value->Field;
+                $result[$value->Field] = $value->Default;
             }
         }
 

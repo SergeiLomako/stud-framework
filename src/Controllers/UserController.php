@@ -16,34 +16,32 @@ class UserController
     /**
      * @var string  DB Table standard keys
      */
-    protected $loginName = 'login';
-    protected $passwordName = 'password';
-    protected $tokenName = 'auth_token';
-    protected $roleName = 'role_id';
-    protected $defaultRoleId = 2;
+    //protected $defaultRoleId = 2;
 
     /**
      * Register through action
      *
      * @param Request $request
      * @param UserModel $model
+     *
+     * @return JsonResponse
      * @throws \Mindk\Framework\Exceptions\ModelException
      */
     public function register(Request $request, UserModel $model) {
 
         $errors = [];
 
-        $login = $request->get($this->loginName, '', 'string');
-        $password = $request->get($this->passwordName, '', 'string');
-        $confirmPassword = $request->get('confirm_' . $this->passwordName, '', 'string');
+        $login = $request->get($model::LOGIN_NAME, '', 'string');
+        $password = $request->get($model::PASSWORD_NAME, '', 'string');
+        $confirmPassword = $request->get('confirm_' . $model::PASSWORD_NAME, '', 'string');
 
 
         if(!empty($login) && filter_var($login, FILTER_VALIDATE_EMAIL)) {
 
-            foreach ($model->getList( $this->loginName ) as $value) {
+            foreach ($model->getList( $model::LOGIN_NAME ) as $value) {
 
-                if ($value->{$this->loginName} === $login) {
-                    $errors["$this->loginName"] = 'This e-mail address is already registered.';
+                if ($value->{$model::LOGIN_NAME} === $login) {
+                    $errors[$model::LOGIN_NAME] = 'This e-mail address is already registered.';
                     break;
                 }
             }
@@ -54,19 +52,19 @@ class UserController
 
                     $token = md5(uniqid());
 
-                    $model->create( array($this->loginName => $login, $this->passwordName => md5($password),
-                        $this->tokenName => $token, $this->roleName => $this->defaultRoleId) );
+                    $model->create( array($model::LOGIN_NAME => $login,
+                        $model::PASSWORD_NAME => md5($password), $model::TOKEN_NAME => $token) );
 
                 } else {
-                    $errors["$this->passwordName"] = 'Password length should be between 6 and 16 symbols.';
+                    $errors[$model::PASSWORD_NAME] = 'Password length should be between 6 and 16 symbols.';
                 }
 
             } else {
-                $errors["$this->passwordName"] = 'Passwords do not match.';
+                $errors[$model::PASSWORD_NAME] = 'Passwords do not match.';
             }
 
         } else {
-            $errors["$this->loginName"] = 'Please, provide a correct e-mail address.';
+            $errors[$model::LOGIN_NAME] = 'Please, provide a correct e-mail address.';
         }
 
 
@@ -76,7 +74,7 @@ class UserController
             $response->setHeader('X-Auth', $token);
         }
 
-        $response->send();
+        return $response;
     }
 
     /**
@@ -100,22 +98,28 @@ class UserController
         }
 
         // Generate new access token and save:
-        $user->{$this->tokenName} = md5(uniqid());
+        $user->{$model::TOKEN_NAME} = md5(uniqid());
         $user->save();
 
         $response = new JsonResponse(null);
-        $response->setHeader('X-Auth', $user->{$this->tokenName});
-        $response->send();
+        $response->setHeader('X-Auth', $user->{$model::TOKEN_NAME});
 
-        return $user->{$this->tokenName};
+        return $response;
     }
 
     /**
      * Logout
      *
      * @param Request $request
+     * @param UserModel $model
      */
-    public function logout(Request $request) {
+    public function logout(Request $request, UserModel $model) {
+
+        if ( $user = $model->findByToken($request->headers['X-Auth']) ) {
+            $user->{$model::TOKEN_NAME} = '';
+            $model->clearValue( $user->{$model::PRIMARY_KEY}, $model::TOKEN_NAME );
+        }
+
         $request->headers['X-Auth'] = null;
     }
 }
