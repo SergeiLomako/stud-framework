@@ -49,8 +49,7 @@ class UserController
         
     }    
 
-    }
-
+    
     /**
      * Login through action
      *

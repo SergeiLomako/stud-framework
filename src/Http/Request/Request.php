@@ -162,4 +162,24 @@ class Request
         return $data;
         
     }
+
+    /**
+     * Checks the key for existence
+     * 
+     * @param $key
+     * @return bool
+     */
+    public function has($key): bool {
+        return !empty($this->get($key));
+    }
+
+    /**
+     * Checks if the value of the key is a file
+     * 
+     * @param $key
+     * @return bool
+     */
+    public function hasFile($key): bool {
+        return is_file($this->get($key));
+    }
 }
