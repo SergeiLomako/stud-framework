@@ -179,7 +179,7 @@ class Request
      * @param $key
      * @return bool
      */
-    public function hasFile($key): bool {
-        return is_file($this->get($key));
+    public function hasUploadFile($key): bool {
+        return is_uploaded_file($_FILES[$key]['tmp_name']);
     }
 }

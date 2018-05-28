@@ -12,7 +12,8 @@ class File
      * @return bool
      */
     public function move($filename, $destination){
-         return move_uploaded_file( $filename , $destination);
+        
+        return move_uploaded_file( $filename , $destination);
     }
 
     /**
@@ -33,5 +34,18 @@ class File
      */
     public function exist($file_path){
         return file_exists($file_path);
+    }
+
+    /**
+     * Checks if the file is an image
+     * 
+     * @param $file
+     * @return bool
+     */
+    public function isImage($file):bool {
+        $mimes = ['image/jpeg', 'image/png'];
+        $file_info = getimagesize($file);
+        
+        return in_array($file_info['mime'], $mimes);       
     }
 }
