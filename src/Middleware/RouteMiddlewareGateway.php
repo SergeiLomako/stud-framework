@@ -33,25 +33,16 @@ class RouteMiddlewareGateway
      * @param $subject
      */
     public function handle(Route $subject, \Closure $core): Response {
-
         $onion = new Onion();
         $mw_instances = [];
-
         if(!empty($this->layers)){
             foreach($this->layers as $layer){
                 array_push($mw_instances, Injector::make($layer));
             }
         }
-
         $response = $onion
             ->layer($mw_instances)
             ->peel($subject, $core);
-
-        // Ensure it's Response subclass or wrap with JsonResponse:
-        if(!($response instanceof Response)){
-            $response = new JsonResponse($response);
-        }
-
         return  $response;
     }
 }
