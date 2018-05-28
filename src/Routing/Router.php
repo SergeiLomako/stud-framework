@@ -37,7 +37,7 @@ class Router
     /**
      * Find matching route, using routing map
      */
-    public function findRoute(){
+    public function findRoute() {
         $result = null;
 
         if(!empty($this->map)){
@@ -64,12 +64,12 @@ class Router
     /**
      * Build route (link)
      *
-     * @param   string
-     * @param   array
-     *
-     * @return  string
+     * @param $name
+     * @param array $params
+     * @return string
+     * @throws RouterException
      */
-    public function buildRoute($name, $params = []): string{
+    public function buildRoute($name, $params = []): string {
         $url = null;
         if(isset($this->map[$name])){
             $url = $this->map[$name]['path'];
