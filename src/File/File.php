@@ -71,7 +71,7 @@ class File
      * @return bool
      */
     public function isValidSize($file, int $size):bool {
-        return $size >= $file['size'];
+        return $size >= (int) $file['size'] / 1024;
     }
 
 }
