@@ -52,4 +52,9 @@ class UserModel extends Model
 
         return $this->dbo->setQuery($sql)->getResult($this);
     }
+
+    public function getRole(){
+        $sql = sprintf("SELECT `title` FROM `roles` WHERE `id` = %s", $this->role_id);
+        return $this->dbo->setQuery($sql)->getResult($this);
+    }
 }
