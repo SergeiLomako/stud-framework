@@ -150,6 +150,9 @@ class Request
                 case 'bool':
                     $data = (bool) $data;
                     break;
+                case 'email':
+                    $data = filter_var($data, FILTER_VALIDATE_EMAIL);
+                    break;
                 case 'string':
                     $data = (string) $data;
                     $data = trim(strip_tags(htmlentities($data)));

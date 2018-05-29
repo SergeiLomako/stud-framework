@@ -74,15 +74,15 @@ class Router
         if(isset($this->map[$name])){
             $url = $this->map[$name]['path'];
             foreach ($params as $key => $value){
-                str_replace('{'.$key.'}', $value, $url);
+                $url = str_replace('{'.$key.'}', $value, $url);
             }
         }
-        if(strpos($url, '{')){
+        if(is_int(strpos($url, '{'))){
             $segments = explode('/', $this->map[$name]['path']);
             $given_params = array_keys($params);
             $required_params = [];
             foreach($segments as $segment){
-                if(strpos($segment, '{')){
+                if(is_int(strpos($segment, '{'))){
                     array_push($required_params, substr($segment,1,-1));
                 }
             }
