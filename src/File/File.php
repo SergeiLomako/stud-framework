@@ -45,7 +45,9 @@ class File
     public function isImage($file):bool {
         $mimes = ['image/jpeg', 'image/png'];
         $extensions = ['jpg', 'jpeg', 'png'];
-        $file_info = @getimagesize($file);
+        $file_info = @getimagesize($file['name']);
+        print_r($file_info);
+        die();
         $file_extension = $this->extension($file['name']);
         
         return $file_info && in_array($file_info['mime'], $mimes) 
