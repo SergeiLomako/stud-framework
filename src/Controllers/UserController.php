@@ -5,7 +5,6 @@ namespace Mindk\Framework\Controllers;
 use Mindk\Framework\Exceptions\AuthRequiredException;
 use Mindk\Framework\Http\Request\Request;
 use Mindk\Framework\Models\UserModel;
-use Mindk\Framework\Http\Response\JsonResponse;
 
 /**
  * Class UserController
