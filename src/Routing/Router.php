@@ -41,12 +41,18 @@ class Router
         $result = null;
 
         if(!empty($this->map)){
+
             foreach ($this->map as $name => $routeData){
                 $path = $routeData['path'];
                 $pattern = $this->transformToRegexp($path);
+
                 if(preg_match($pattern, $this->request->getUri(), $matches)){
-                    if(!empty($routeData['method']) && $this->request->getMethod() != strtoupper($routeData['method'])) {
-                       continue;
+                    $method = $this->request->getMethod();
+
+                    if(($method != 'OPTIONS') && (!empty($routeData['method']) &&
+                            $method != strtoupper($routeData['method']))) {
+
+                        continue;
                     }
 
                     $result = $routeData;
