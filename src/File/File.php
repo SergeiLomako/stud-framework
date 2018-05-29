@@ -44,8 +44,33 @@ class File
      */
     public function isImage($file):bool {
         $mimes = ['image/jpeg', 'image/png'];
-        $file_info = getimagesize($file);
+        $extensions = ['jpg', 'jpeg', 'png'];
+
+        $file_info = @getimagesize($file);
         
-        return in_array($file_info['mime'], $mimes);       
+        return $file_info && in_array($file_info['mime'], $mimes);
     }
+
+    /**
+     * Get file extension
+     *
+     * @param $filename
+     * @return string
+     */
+    public function extension($filename): string {
+        $segments = explode('.', $filename);
+        return array_pop($segments);
+    }
+
+    /**
+     * Checks the file for a valid size
+     *
+     * @param $file
+     * @param int $size
+     * @return bool
+     */
+    public function isValidSize($file, int $size):bool {
+        return $size >= $file['size'];
+    }
+
 }

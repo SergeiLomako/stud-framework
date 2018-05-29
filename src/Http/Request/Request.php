@@ -180,6 +180,7 @@ class Request
      * @return bool
      */
     public function hasUploadFile($key): bool {
-        return is_uploaded_file($_FILES[$key]['tmp_name']);
+        $file = $this->get($key);
+        return is_uploaded_file($file['tmp_name']);
     }
 }
