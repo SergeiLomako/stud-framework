@@ -60,7 +60,7 @@ class File
      */
     public function extension($filename): string {
         $segments = explode('.', $filename);
-        return array_pop($segments);
+        return strtolower(array_pop($segments));
     }
 
     /**
