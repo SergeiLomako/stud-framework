@@ -14,17 +14,11 @@ use Mindk\Framework\Http\Response\JsonResponse;
 class UserController
 {
     /**
-     * @var string  DB Table standard keys
-     */
-    //protected $defaultRoleId = 2;
-
-    /**
      * Register through action
      *
      * @param Request $request
      * @param UserModel $model
-     *
-     * @return JsonResponse
+     * @return array|string
      * @throws \Mindk\Framework\Exceptions\ModelException
      */
     public function register(Request $request, UserModel $model) {
@@ -68,13 +62,11 @@ class UserController
         }
 
 
-        $response = new JsonResponse($errors);
-
         if (!empty($token)) {
-            $response->setHeader('X-Auth', $token);
+            return $token;
+        } else {
+            return $errors;
         }
-
-        return $response;
     }
 
     /**
@@ -101,10 +93,7 @@ class UserController
         $user->{$model::TOKEN_NAME} = md5(uniqid());
         $user->save();
 
-        $response = new JsonResponse(null);
-        $response->setHeader('X-Auth', $user->{$model::TOKEN_NAME});
-
-        return $response;
+        return $user->{$model::TOKEN_NAME};
     }
 
     /**
