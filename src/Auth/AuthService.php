@@ -32,6 +32,16 @@ class AuthService
     }
 
     /**
+     * Get current user id
+     * 
+     * @return mixed
+     */
+    public static function getUserId(){
+        
+        return self::$user->id;
+    } 
+
+    /**
      * Check if current user has requested roles
      *
      * @return bool
