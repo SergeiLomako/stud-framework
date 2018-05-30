@@ -183,4 +183,8 @@ class Request
         $file = $this->get($key);
         return is_uploaded_file($file['tmp_name']);
     }
+    
+    public function isEmpty($key){
+        return empty($this->get($key));
+    }
 }
