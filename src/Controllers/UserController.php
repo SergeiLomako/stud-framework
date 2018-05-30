@@ -37,7 +37,7 @@ class UserController
         $code = 200;
         if (empty($errors)) {
             $token = md5(uniqid());
-            $model->create(['login' => $login, 'password' => md5($password), 'auth_token' => $token]);
+            $model->create(['login' => $login, 'password' => md5($password), 'token' => $token]);
             $status = ['token' => $token];
         } else {
             $status = $errors;
