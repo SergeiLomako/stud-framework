@@ -84,7 +84,7 @@ class UserController
     public function logout(Request $request, UserModel $model) {
         $user = $model->findByToken($request->getHeader('X-Auth'));
         if($user){
-          $user->auth_token = 0;
+          $user->token = 0;
           $user->save();
         }
     }
