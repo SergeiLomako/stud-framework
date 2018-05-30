@@ -2,9 +2,17 @@
 
 namespace Mindk\Framework\Helpers;
 
+use Mindk\Framework\Config\Config;
+
 
 class Helper
 {
+    /**
+     * Transliterate string
+     * 
+     * @param $s
+     * @return mixed|string
+     */
     public static function transliterate($s){
         $s = (string) $s;
         $s = strip_tags($s);
@@ -22,5 +30,16 @@ class Helper
         $s = str_replace(" ", "-", $s);
 
         return $s;
+    }
+
+    /**
+     * Create path with config data
+     * 
+     * @param Config $config
+     * @param $config_path
+     * @return string
+     */
+    public static function getPath(Config $config, $config_path){
+        return $_SERVER['DOCUMENT_ROOT'] . $config->{$config_path};
     }
 }
