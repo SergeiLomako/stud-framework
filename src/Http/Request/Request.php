@@ -183,8 +183,15 @@ class Request
         $file = $this->get($key);
         return is_uploaded_file($file['tmp_name']);
     }
-    
-    public function isEmpty($key){
-        return empty($this->get($key));
+
+    /**
+     * Will check the array for existence and emptiness
+     * 
+     * @param $key
+     * @return bool
+     */
+    public function check($key){
+        return  $this->has($key) && !empty($this->get($key));
     }
+       
 }
