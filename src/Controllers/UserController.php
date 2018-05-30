@@ -5,7 +5,6 @@ namespace Mindk\Framework\Controllers;
 use Mindk\Framework\Exceptions\AuthRequiredException;
 use Mindk\Framework\Http\Request\Request;
 use Mindk\Framework\Models\UserModel;
-use Mindk\Framework\DB\DBOConnectorInterface;
 use Mindk\Framework\Http\Response\JsonResponse;
 
 /**
@@ -47,15 +46,15 @@ class UserController
 
         return new JsonResponse($status, $code);
         
-    }    
+    }
 
-    
+
     /**
      * Login through action
-     *
+     * 
      * @param Request $request
      * @param UserModel $model
-     *
+     * @return string
      * @throws AuthRequiredException
      */
     public function login(Request $request, UserModel $model) {
@@ -70,10 +69,10 @@ class UserController
         }
 
         // Generate new access token and save:
-        $user->auth_token = md5(uniqid());
+        $user->token = md5(uniqid());
         $user->save();
       
-        return $user->auth_token;
+        return $user->token;
 
     }
 
