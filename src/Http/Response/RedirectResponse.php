@@ -9,13 +9,21 @@ namespace Mindk\Framework\Http\Response;
  */
 class RedirectResponse extends Response
 {
-    public function redirectTo($url)
-    {
+    /**
+     * Redirect to url
+     *
+     * @param $url
+     */
+    public function redirectTo($url) {
+
         $this->setHeader('Location', $url);
     }
 
-    public function back()
-    {
+    /**
+     * Return back
+     */
+    public function back() {
+
         $prev_url = $_SERVER['HTTP_REFERER'];
         $this->redirectTo($prev_url);
     }

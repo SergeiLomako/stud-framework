@@ -9,6 +9,7 @@ use Optimus\Onion\LayerInterface;
 
 /**
  * Class Auth Route Middleware
+ *
  * @package Mindk\Framework\Middleware
  */
 class Auth implements LayerInterface
@@ -24,11 +25,13 @@ class Auth implements LayerInterface
     protected $userModel;
 
     /**
-     * Auth constructor.
+     * Auth constructor
+     *
      * @param Request $request
+     * @param UserModel $model
      */
-    public function __construct(Request $request, UserModel $model)
-    {
+    public function __construct(Request $request, UserModel $model) {
+
         $this->request = $request;
         $this->userModel = $model;
     }
@@ -37,14 +40,14 @@ class Auth implements LayerInterface
      * Authorize request if access token provided
      *
      * @param $object
-     * @param Closure $next
-     *
+     * @param \Closure $next
      * @return mixed
      */
-    public function peel($object, \Closure $next){
+    public function peel($object, \Closure $next) {
+
         // Assuming $object is route object:
-        if($token = $this->request->getHeader('X-Auth')){
-            if($user = $this->userModel->findByToken($token)){
+        if($token = $this->request->getHeader('X-Auth')) {
+            if($user = $this->userModel->findByToken($token)) {
                 AuthService::setUser($user);
             }
         }

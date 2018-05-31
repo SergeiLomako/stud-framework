@@ -8,17 +8,23 @@ use Optimus\Onion\LayerInterface;
 
 /**
  * Class ACL Route Middleware
+ *
  * @package Mindk\Framework\Middleware
  */
 class CORS implements LayerInterface
 {
+    /**
+     * @var Request
+     */
     protected $request;
 
     /**
-     * CheckOptions constructor.
+     * CORS constructor
+     *
+     * @param Request $request
      */
-    public function __construct(Request $request)
-    {
+    public function __construct(Request $request) {
+
         $this->request = $request;
     }
 
@@ -29,9 +35,9 @@ class CORS implements LayerInterface
      * @param \Closure $next
      * @return Response|mixed
      */
-    public function peel($object, \Closure $next){
+    public function peel($object, \Closure $next) {
 
-        if($this->request->getMethod() == 'OPTIONS'){
+        if($this->request->getMethod() == 'OPTIONS') {
             $response = new Response('', 204);
         } else {
             $response = $next($object);

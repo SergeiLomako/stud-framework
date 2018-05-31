@@ -7,6 +7,7 @@ use Mindk\Framework\Http\Response\JsonResponse;
 
 /**
  * Common Class FrameworkException
+ *
  * @package Exceptions
  */
 abstract class FrameworkException extends \Exception

@@ -7,6 +7,7 @@ use Mindk\Framework\Exceptions\ModelException;
 
 /**
  * Basic Model Class
+ *
  * @package Mindk\Framework\Models
  */
 abstract class Model
@@ -26,31 +27,30 @@ abstract class Model
 
     /**
      * Model constructor
+     *
      * @param DBOConnectorInterface $db
      */
-    public function __construct(DBOConnectorInterface $db)
-    {
+    public function __construct(DBOConnectorInterface $db) {
+
         $this->dbo = $db;
     }
 
     /**
      * Create new record
      *
-     * @param array $data
+     * @param array $inputData
      * @throws ModelException
      */
     public function create( array $inputData ) {
-
         $tableData = $this->getColumnsNames();
-
         $tableKeysDiff = array_diff_key($tableData, $inputData);
         $inputKeysDiff = array_diff_key($inputData, $tableData);
 
-        if( $tableKeysDiff && !$inputKeysDiff) {
+        if($tableKeysDiff && !$inputKeysDiff) {
 
             foreach( $tableKeysDiff as $key => $value) {
 
-                if (!empty($tableData[$key])) {
+                if(!empty($tableData[$key])) {
                     $inputData[$key] = $tableData[$key];
                 } else {
 
@@ -79,9 +79,8 @@ abstract class Model
     /**
      * Read record
      *
-     * @param   int Record ID
-     *
-     * @return  object
+     * @param int $id
+     * @return mixed
      */
     public function load( int $id ) {
 
@@ -97,13 +96,14 @@ abstract class Model
      * @return bool
      */
     public function save() : bool {
-
         $classVars = get_class_vars(get_class($this));
         $objectVars = get_object_vars($this);
 
-        foreach ($objectVars as $key => $value) {
+        foreach($objectVars as $key => $value) {
             if(!array_key_exists($key, $classVars) &&
-                $key !== $this::PRIMARY_KEY && $key !== $this::CREATED_AT && $key !== $this::UPDATED_AT ) {
+                $key !== $this::PRIMARY_KEY &&
+                $key !== $this::CREATED_AT &&
+                $key !== $this::UPDATED_AT ) {
 
                 $result[] = "`$key`='$value'";
             }
@@ -119,6 +119,8 @@ abstract class Model
 
     /**
      * Delete record from DB
+     *
+     * @param int $id
      */
     public function delete( int $id ) {
 
@@ -130,6 +132,9 @@ abstract class Model
 
     /**
      * Clear column value
+     *
+     * @param int $id
+     * @param string $column
      */
     public function clearValue( int $id, string $column ) {
 
@@ -142,7 +147,8 @@ abstract class Model
     /**
      * Get list of records
      *
-     * @return array
+     * @param string $columnName
+     * @return mixed
      */
     public function getList( string $columnName = '*' ) {
 
@@ -157,17 +163,17 @@ abstract class Model
      *
      * @return mixed
      */
-    public function getColumnsNames()
-    {
+    public function getColumnsNames() {
 
         $sql = sprintf("DESCRIBE `%s`",
             (string)$this::TABLE_NAME);
 
         $columnsInfo = $this->dbo->setQuery($sql)->getList(get_class($this));
 
-        foreach ($columnsInfo as $value) {
+        foreach($columnsInfo as $value) {
 
-            if ($value->Field !== $this::PRIMARY_KEY && $value->Field !== $this::CREATED_AT &&
+            if( $value->Field !== $this::PRIMARY_KEY &&
+                $value->Field !== $this::CREATED_AT &&
                 $value->Field !== $this::UPDATED_AT) {
 
                 $result[$value->Field] = $value->Default;

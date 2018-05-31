@@ -10,6 +10,7 @@ use Mindk\Framework\Routing\Route;
 
 /**
  * Class MiddlewareGateway
+ *
  * @package Mindk\Framework\Middleware
  */
 class RouteMiddlewareGateway
@@ -20,10 +21,12 @@ class RouteMiddlewareGateway
     protected $layers = [];
 
     /**
-     * MiddlewareGateway constructor.
+     * RouteMiddlewareGateway constructor
+     *
+     * @param array $middlawares
      */
-    public function __construct($middlawares = [])
-    {
+    public function __construct($middlawares = []) {
+
         $this->layers = $middlawares;
     }
 
@@ -40,8 +43,8 @@ class RouteMiddlewareGateway
         $onion = new Onion();
         $mw_instances = [];
 
-        if(!empty($this->layers)){
-            foreach($this->layers as $layer){
+        if(!empty($this->layers)) {
+            foreach($this->layers as $layer) {
                 array_push($mw_instances, Injector::make($layer));
             }
         }

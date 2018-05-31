@@ -38,7 +38,6 @@ class AuthService
      * @return bool
      */
     public static function checkRoles($roles) {
-
         $roles = (array)$roles;
         $user = AuthService::getUser();
 

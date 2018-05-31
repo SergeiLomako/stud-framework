@@ -21,9 +21,7 @@ class UserController
      * @throws \Mindk\Framework\Exceptions\ModelException
      */
     public function register(Request $request, UserModel $model) {
-
         $errors = [];
-
         $login = $request->get($model::LOGIN_NAME, '', 'string');
         $password = $request->get($model::PASSWORD_NAME, '', 'string');
         $confirmPassword = $request->get('confirm_' . $model::PASSWORD_NAME, '', 'string');
@@ -32,7 +30,6 @@ class UserController
         if(!empty($login) && filter_var($login, FILTER_VALIDATE_EMAIL)) {
 
             foreach ($model->getList( $model::LOGIN_NAME ) as $value) {
-
                 if ($value->{$model::LOGIN_NAME} === $login) {
                     $errors[$model::LOGIN_NAME] = 'This e-mail address is already registered.';
                     break;
@@ -42,7 +39,6 @@ class UserController
             if($password === $confirmPassword) {
 
                 if(!empty($password) && strlen($password) > 5 && strlen($password) < 17) {
-
                     $token = md5(uniqid());
 
                     $model->create( array($model::LOGIN_NAME => $login,
@@ -61,7 +57,7 @@ class UserController
         }
 
 
-        if (!empty($token)) {
+        if(!empty($token)) {
             return $token;
         } else {
             return $errors;
@@ -80,7 +76,6 @@ class UserController
     public function login(Request $request, UserModel $model) {
 
         if($login = $request->get('login', '', 'string')) {
-
             $user = $model->findByCredentials($login, $request->get('password', ''));
         }
 

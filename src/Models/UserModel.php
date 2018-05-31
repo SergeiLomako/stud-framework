@@ -4,6 +4,7 @@ namespace Mindk\Framework\Models;
 
 /**
  * Class UserModel
+ *
  * @package Mindk\Framework\Models
  */
 class UserModel extends Model
@@ -28,6 +29,7 @@ class UserModel extends Model
      * @return mixed
      */
     public function findByCredentials($login, $password) {
+
         $sql = sprintf("SELECT * FROM `%s` WHERE `%s`='%s' AND `%s`='%s'",
             $this::TABLE_NAME, $this::LOGIN_NAME, (string)$login, $this::PASSWORD_NAME, (string)( md5($password) ));
 
@@ -43,6 +45,7 @@ class UserModel extends Model
      */
     public function findByToken($token) {
         $token = filter_var($token, FILTER_SANITIZE_STRING);
+
         $sql = sprintf("SELECT * FROM `%s` WHERE `%s`='%s'",
             $this::TABLE_NAME, $this::TOKEN_NAME, (string)$token );
 

@@ -22,13 +22,11 @@ class App
     protected $config = null;
 
     /**
-     * App constructor.
+     * App constructor
+     *
      * @param $config
      */
-    public function __construct(array $config)
-    {
-        // Test Xdebug
-        //$this->config = new Config($config);
+    public function __construct(array $config) {
 
         $this->config = Config::getInstance($config);
         Injector::setConfig($this->config);
@@ -37,14 +35,14 @@ class App
     /**
      * Run the app
      */
-    public function run(){
+    public function run() {
 
-        try{
+        try {
             $router = Injector::make('router', ['mapping' => $this->config->get('routes', []) ] );
             $route = $router->findRoute();
             $middlewareGateway = new RouteMiddlewareGateway($this->config->get('middleware'));
 
-            if($route instanceof Route){
+            if($route instanceof Route) {
                 $response = $middlewareGateway->handle($route, function($object) {
                     return $this->processRoute($object);
                 });
@@ -67,16 +65,13 @@ class App
      * Process route
      *
      * @param Route $route
-     *
-     * @return Response
-     * @throws \Exception
+     * @return JsonResponse|mixed
      * @throws \ReflectionException
      */
-    protected function processRoute(Route $route){
-
+    protected function processRoute(Route $route) {
         $controllerReflection = new \ReflectionClass($route->controller);
 
-        if($controllerReflection->hasMethod($route->action)){
+        if($controllerReflection->hasMethod($route->action)) {
             $controller = Injector::make($route->controller);
             $methodReflection = $controllerReflection->getMethod($route->action);
 
@@ -85,7 +80,7 @@ class App
             $response = $methodReflection->invokeArgs($controller, $paramset);
 
             // Ensure it's Response subclass or wrap with JsonResponse:
-            if(!($response instanceof Response)){
+            if(!($response instanceof Response)) {
                 $response = new JsonResponse($response);
             }
         } else {
