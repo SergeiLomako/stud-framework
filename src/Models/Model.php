@@ -4,6 +4,7 @@ namespace Mindk\Framework\Models;
 
 use Mindk\Framework\DB\DBOConnectorInterface;
 use Mindk\Framework\Exceptions\ModelException;
+use Mindk\Framework\Exceptions\NotFoundException;
 
 /**
  * Basic Model Class
@@ -28,7 +29,7 @@ abstract class Model
 
     /**
      * Model constructor.
-     * @param GenericConnector $db
+     * @param DBOConnectorInterface $db
      */
     public function __construct(DBOConnectorInterface $db)
     {
@@ -85,6 +86,21 @@ abstract class Model
         return $this->dbo->setQuery($sql)->getResult($this);
     }
 
+    /**
+     * Get model by id if exist.
+     * 
+     * @param $id
+     * @return object
+     * @throws NotFoundException
+     */
+    public function findOrFail($id){
+        $model = $this->load($id);
+        if(!$model){
+            throw new NotFoundException('Model not found');
+        }
+        
+        return $model;
+    }
     /**
      * Save record state to db
      *
