@@ -33,13 +33,12 @@ class Helper
     }
 
     /**
-     * Create path with config data
+     * Create absolute path
      * 
-     * @param Config $config
-     * @param $config_path
+     * @param $path
      * @return string
      */
-    public static function getPath(Config $config, $config_path){
-        return $_SERVER['DOCUMENT_ROOT'] . $config->{$config_path};
+    public static function getPath($path){
+        return $_SERVER['DOCUMENT_ROOT'] . $path;
     }
 }
