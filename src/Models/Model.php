@@ -117,10 +117,8 @@ abstract class Model
             }
         }
 
-        $result = implode(', ', $result);
-
         $sql = sprintf("UPDATE `%s` SET %s WHERE `%s`=" .
-            (int)$this->{$this->primaryKey}, (string)$this->tableName, (string)$result, (string)$this->primaryKey);
+            (int)$this->{$this->primaryKey}, (string)$this->tableName, implode(', ', $result), (string)$this->primaryKey);
 
         return $this->dbo->setQuery($sql) ? true : false;
     }
