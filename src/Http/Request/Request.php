@@ -43,12 +43,9 @@ class Request
 
         // Grab all request data:
         $raw_data = $_REQUEST + $_FILES;
-        if($raw_input = json_decode($this->getRawInput(), true)) {
-            if(!is_array($raw_input)){
-                $raw_input = ['_raw' => $raw_input];
-            }
-
-            $raw_data = array_merge($raw_data, $raw_input);
+        if($this->getMethod() === 'PUT') {
+            parse_str(file_get_contents("php://input"),$post_vars);
+            $raw_data += $post_vars;
         }
 
         // Make headers act like object:
