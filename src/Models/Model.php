@@ -144,7 +144,7 @@ abstract class Model
     public function getList( string $columnName = '*' ) {
 
         $sql = sprintf("SELECT `%s` FROM `%s`",
-            $columnName, (string)$this::TABLE_NAME);
+            $columnName, $this->tableName);
 
         return $this->dbo->setQuery($sql)->getList(get_class($this));
     }
