@@ -83,11 +83,6 @@ class App
             if(!($response instanceof Response)) {
                 $response = new JsonResponse($response);
             }
-  
-            // Ensure it's Response subclass or wrap with JsonResponse:
-            if(!($response instanceof Response)){
-              $response = new JsonResponse($response);
-            }
         } else {
             throw new \Exception('Bad controller action');
         }
