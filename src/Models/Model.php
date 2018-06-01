@@ -14,12 +14,19 @@ use Mindk\Framework\Exceptions\NotFoundException;
 abstract class Model
 {
     /**
-     * @var string  DB Table standard keys
+     * @var string  DB Table name
      */
-    const TABLE_NAME = '';
-    const PRIMARY_KEY = 'id';
-    const CREATED_AT = 'created_at';
-    const UPDATED_AT = 'updated_at';
+    protected $tableName = '';
+
+    /**
+     * @var string  DB Table primary key
+     */
+    protected $primaryKey = 'id';
+
+    /**
+     * @var string  DB Table except columns
+     */
+    protected $except = ['id', 'created_at', 'updated_at'];
 
     /**
      * @var null
@@ -39,39 +46,32 @@ abstract class Model
     /**
      * Create new record
      *
-     * @param array $inputData
+     * @param $data
+     * @return mixed
      * @throws ModelException
      */
-    public function create( array $inputData ) {
-        $tableData = $this->getColumnsNames();
-        $tableKeysDiff = array_diff_key($tableData, $inputData);
-        $inputKeysDiff = array_diff_key($inputData, $tableData);
-
-        if($tableKeysDiff && !$inputKeysDiff) {
-
-            foreach( $tableKeysDiff as $key => $value) {
-
-                if(!empty($tableData[$key])) {
-                    $inputData[$key] = $tableData[$key];
-                } else {
-
-                    throw new ModelException('Invalid column names. Expected: ' .
-                        implode(', ', array_keys($tableData)) . '. Received: ' .
-                        implode(', ', array_keys($inputData)) . '.');
-                }
+    public function create( $data )
+    {
+        $table_columns = $this->getColumnsNames();
+        foreach($data as $key => $value){
+            if(!in_array($key, $table_columns)){
+                throw new ModelException('Invalid column names. Expected: ' . implode(',', $table_columns));
             }
-
-        } else {
-
-            throw new ModelException('Invalid column names. Expected: ' .
-                implode(', ', array_keys($tableData)) . '. Received: ' .
-                implode(', ', array_keys($inputData)) . '.');
         }
 
-        $sql = sprintf("INSERT INTO `%s` (`%s`) VALUES ('%s')",
-            (string)$this::TABLE_NAME, implode("`, `", array_keys($inputData)), implode("', '", $inputData));
+        $array_values = [];
+        foreach(array_values($data) as $value){
+            if(is_string($value)){
+                $value = '\'' . $value . '\'';
+            }
+            array_push($array_values, $value);
+        }
 
-        $this->dbo->setQuery($sql);
+        $sql = sprintf("INSERT INTO `%s` (%s) VALUES (%s)", $this->tableName,
+            implode(',', array_keys($data)), implode(',',$array_values ));
+
+        return $this->dbo->setQuery($sql);
+
     }
 
     /**
@@ -81,14 +81,14 @@ abstract class Model
      * @return mixed
      */
     public function load( int $id ) {
-        $sql = sprintf("SELECT * FROM `%s` WHERE `%s`='%u'", (string)$this::TABLE_NAME, $this::PRIMARY_KEY, $id);
+        $sql = sprintf("SELECT * FROM `%s` WHERE `%s`='%u'", $this->tableName, $this->primaryKey, $id);
 
         return $this->dbo->setQuery($sql)->getResult($this);
     }
 
     /**
      * Get model by id if exist.
-     * 
+     *
      * @param $id
      * @return object
      * @throws NotFoundException
@@ -98,7 +98,7 @@ abstract class Model
         if(!$model){
             throw new NotFoundException('Model with id ' . $id . ' not found');
         }
-        
+
         return $model;
     }
     /**
@@ -107,22 +107,17 @@ abstract class Model
      * @return bool
      */
     public function save() : bool {
-        $classVars = get_class_vars(get_class($this));
+        $columns = $this->getColumnsNames();
         $objectVars = get_object_vars($this);
 
         foreach($objectVars as $key => $value) {
-            if(!array_key_exists($key, $classVars) &&
-                $key !== $this::PRIMARY_KEY &&
-                $key !== $this::CREATED_AT &&
-                $key !== $this::UPDATED_AT ) {
-
+            if(in_array($key, $columns)) {
                 $result[] = "`$key`='$value'";
             }
         }
 
-
         $sql = sprintf("UPDATE `%s` SET %s WHERE `%s`='%u'",
-               (string)$this::TABLE_NAME, implode(',', $result), $this::PRIMARY_KEY, (int)$this->{$this::PRIMARY_KEY});
+            $this->tableName, implode(',', $result), $this->primaryKey, (int)$this->id);
 
         return ($this->dbo->setQuery($sql) !== false) ? true : false;
     }
@@ -135,7 +130,7 @@ abstract class Model
     public function delete( int $id ) {
 
         $sql = sprintf("DELETE FROM `%s` WHERE `%s`='%u'",
-            (string)$this::TABLE_NAME, $this::PRIMARY_KEY, $id);
+            $this->tableName, $this->primaryKey, (int) $id);
 
         $this->dbo->setQuery($sql);
     }
@@ -157,25 +152,16 @@ abstract class Model
     /**
      * Gets columns names of a table
      *
-     * @return mixed
+     * @return array
      */
-    public function getColumnsNames() {
+    public function getColumnsNames()
+    {
+        $sql = 'DESCRIBE `' . $this->tableName . '`';
+        $this->dbo->setQuery($sql);
+        $statement = $this->dbo->get('statement');
+        $columns = $statement->fetchAll(\PDO::FETCH_COLUMN);
 
-        $sql = sprintf("DESCRIBE `%s`",
-            (string)$this::TABLE_NAME);
+        return array_diff($columns, $this->except);
 
-        $columnsInfo = $this->dbo->setQuery($sql)->getList(get_class($this));
-
-        foreach($columnsInfo as $value) {
-
-            if( $value->Field !== $this::PRIMARY_KEY &&
-                $value->Field !== $this::CREATED_AT &&
-                $value->Field !== $this::UPDATED_AT) {
-
-                $result[$value->Field] = $value->Default;
-            }
-        }
-
-        return !empty($result) ? $result : null;
     }
 }
