@@ -96,7 +96,7 @@ abstract class Model
     public function findOrFail($id){
         $model = $this->load($id);
         if(!$model){
-            throw new NotFoundException('Model not found');
+            throw new NotFoundException('Model with id ' . $id . ' not found');
         }
         
         return $model;
