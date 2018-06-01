@@ -37,8 +37,8 @@ class UserModel extends Model
     public function findByToken($token) {
         $token = filter_var($token, FILTER_SANITIZE_STRING);
 
-        $sql = sprintf("SELECT * FROM `%s` WHERE `%s`='%s'",
-            $this->tableName, $this->token, (string) $token );
+        $sql = sprintf("SELECT * FROM `%s` WHERE `token`='%s'",
+            $this->tableName, (string) $token );
 
         return $this->dbo->setQuery($sql)->getResult($this);
     }
