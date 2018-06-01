@@ -32,6 +32,16 @@ class AuthService
     }
 
     /**
+     * Get current user id
+     * 
+     * @return mixed
+     */
+    public static function getUserId(){
+        
+        return self::$user->id;
+    } 
+
+    /**
      * Check if current user has requested roles
      *
      * @param $roles
@@ -40,7 +50,6 @@ class AuthService
     public static function checkRoles($roles) {
         $roles = (array)$roles;
         $user = AuthService::getUser();
-
         $userRole = empty($user) ? 'guest' : $user->getRoleName();
 
         return in_array($userRole, $roles);

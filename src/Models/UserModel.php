@@ -31,7 +31,7 @@ class UserModel extends Model
     public function findByCredentials($login, $password) {
 
         $sql = sprintf("SELECT * FROM `%s` WHERE `%s`='%s' AND `%s`='%s'",
-            $this::TABLE_NAME, $this::LOGIN_NAME, (string)$login, $this::PASSWORD_NAME, (string)( md5($password) ));
+            $this::TABLE_NAME, $this::LOGIN_NAME, (string)$login, $this::PASSWORD_NAME, md5($password));
 
         return $this->dbo->setQuery($sql)->getResult($this);
     }
@@ -66,5 +66,11 @@ class UserModel extends Model
         $result = $result[0]->{$this::ROLE_TITLE};
 
         return $result;
+    }
+
+    public function getRole(){
+        $sql = sprintf("SELECT `title` FROM `roles` WHERE `id` = %s", $this->role_id);
+        $state =  $this->dbo->setQuery($sql)->getResult($this);
+        return $state->title;
     }
 }

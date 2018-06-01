@@ -43,14 +43,11 @@ class Request
         }
 
         // Grab all request data:
-        $raw_data = $_REQUEST;
 
-        if($raw_input = json_decode($this->getRawInput(), true)) {
-            if(!is_array($raw_input)) {
-                $raw_input = ['_raw' => $raw_input];
-            }
-
-            $raw_data = array_merge($raw_data, $raw_input);
+        $raw_data = $_REQUEST + $_FILES;
+        if($this->getMethod() === 'PUT') {
+            parse_str(file_get_contents("php://input"),$post_vars);
+            $raw_data += $post_vars;
         }
 
         // Make headers act like object:
@@ -163,4 +160,36 @@ class Request
 
         return $data;
     }
+
+    /**
+     * Checks the key for existence
+     * 
+     * @param $key
+     * @return bool
+     */
+    public function has($key): bool {
+        return !empty($this->get($key));
+    }
+
+    /**
+     * Checks if the value of the key is a file
+     * 
+     * @param $key
+     * @return bool
+     */
+    public function hasUploadFile($key): bool {
+        $file = $this->get($key);
+        return is_uploaded_file($file['tmp_name']);
+    }
+
+    /**
+     * Will check the array for existence and emptiness
+     * 
+     * @param $key
+     * @return bool
+     */
+    public function check($key){
+        return  $this->has($key) && !empty($this->get($key));
+    }
+       
 }

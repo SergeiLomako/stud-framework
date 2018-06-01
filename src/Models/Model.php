@@ -4,6 +4,7 @@ namespace Mindk\Framework\Models;
 
 use Mindk\Framework\DB\DBOConnectorInterface;
 use Mindk\Framework\Exceptions\ModelException;
+use Mindk\Framework\Exceptions\NotFoundException;
 
 /**
  * Basic Model Class
@@ -83,13 +84,26 @@ abstract class Model
      * @return mixed
      */
     public function load( int $id ) {
-
-        $sql = sprintf("SELECT * FROM `%s` WHERE `%s`='%u'",
-                      (string)$this::TABLE_NAME, $this::PRIMARY_KEY, $id);
+        $sql = sprintf("SELECT * FROM `%s` WHERE `%s`='%u'", (string)$this::TABLE_NAME, $this::PRIMARY_KEY, $id);
 
         return $this->dbo->setQuery($sql)->getResult($this);
     }
 
+    /**
+     * Get model by id if exist.
+     * 
+     * @param $id
+     * @return object
+     * @throws NotFoundException
+     */
+    public function findOrFail($id){
+        $model = $this->load($id);
+        if(!$model){
+            throw new NotFoundException('Model not found');
+        }
+        
+        return $model;
+    }
     /**
      * Save record state to db
      *
@@ -109,10 +123,9 @@ abstract class Model
             }
         }
 
-        $result = implode(', ', $result);
 
         $sql = sprintf("UPDATE `%s` SET %s WHERE `%s`='%u'",
-            (string)$this::TABLE_NAME, (string)$result, $this::PRIMARY_KEY, (int)$this->{$this::PRIMARY_KEY});
+               (string)$this::TABLE_NAME, implode(',', $result), $this::PRIMARY_KEY, (int)$this->{$this::PRIMARY_KEY});
 
         return ($this->dbo->setQuery($sql) !== false) ? true : false;
     }
@@ -126,20 +139,6 @@ abstract class Model
 
         $sql = sprintf("DELETE FROM `%s` WHERE `%s`='%u'",
             (string)$this::TABLE_NAME, $this::PRIMARY_KEY, $id);
-
-        $this->dbo->setQuery($sql);
-    }
-
-    /**
-     * Clear column value
-     *
-     * @param int $id
-     * @param string $column
-     */
-    public function clearValue( int $id, string $column ) {
-
-        $sql = sprintf("UPDATE `%s` SET `%s`='' WHERE `%s`='%u'",
-            (string)$this::TABLE_NAME, $column, $this::PRIMARY_KEY, $id);
 
         $this->dbo->setQuery($sql);
     }
