@@ -15,7 +15,7 @@ class UserModel extends Model
     const TABLE_NAME = 'users';
     const LOGIN_NAME = 'login';
     const PASSWORD_NAME = 'password';
-    const TOKEN_NAME = 'auth_token';
+    const TOKEN_NAME = 'token';
     const ROLE_NAME = 'role_id';
     const ROLE_TABLE = 'roles';
     const ROLE_TITLE = 'title';
