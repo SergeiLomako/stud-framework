@@ -63,10 +63,10 @@ class App
 
     /**
      * Process route
-     *
+     * 
      * @param Route $route
      * @return JsonResponse|mixed
-     * @throws \ReflectionException
+     * @throws \Exception
      */
     protected function processRoute(Route $route) {
         $controllerReflection = new \ReflectionClass($route->controller);

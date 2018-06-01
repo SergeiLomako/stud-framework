@@ -68,11 +68,8 @@ abstract class Model
                 implode(', ', array_keys($inputData)) . '.');
         }
 
-        $keys = implode("`, `", array_keys($inputData));
-        $values = implode("', '", $inputData);
-
         $sql = sprintf("INSERT INTO `%s` (`%s`) VALUES ('%s')",
-            (string)$this::TABLE_NAME, (string)$keys, (string)$values);
+            (string)$this::TABLE_NAME, implode("`, `", array_keys($inputData)), implode("', '", $inputData));
 
         $this->dbo->setQuery($sql);
     }

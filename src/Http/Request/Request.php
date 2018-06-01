@@ -46,7 +46,7 @@ class Request
 
         $raw_data = $_REQUEST + $_FILES;
         if($this->getMethod() === 'PUT') {
-            parse_str(file_get_contents("php://input"),$post_vars);
+            parse_str($this->getRawInput(),$post_vars);
             $raw_data += $post_vars;
         }
 
@@ -153,7 +153,7 @@ class Request
                     break;
                 case 'string':
                     $data = (string)$data;
-                    $data = trim( strip_tags(htmlentities($data)) );
+                    $data = trim(strip_tags(htmlentities($data)) );
                     break;
             }
         }

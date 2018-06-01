@@ -19,6 +19,7 @@ class CORS implements LayerInterface
      * @var Request
      */
     protected $request;
+    protected $url;
 
     /**
      * CORS constructor
@@ -28,6 +29,7 @@ class CORS implements LayerInterface
     public function __construct(Request $request, $url) {
 
         $this->request = $request;
+        $this->url = $url;
     }
 
     /**
@@ -46,7 +48,7 @@ class CORS implements LayerInterface
             $response = $next($object);
         }
 
-        $response->setHeader('Access-Control-Allow-Origin', $url);
+        $response->setHeader('Access-Control-Allow-Origin', $this->url);
         $response->setHeader('Access-Control-Allow-Credentials', 'true');
         $response->setHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Origin, Authorization, Accept, Client-Security-Token, Accept-Encoding, APIToken, APIKey');
         $response->setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, DELETE, PUT, PATCH');

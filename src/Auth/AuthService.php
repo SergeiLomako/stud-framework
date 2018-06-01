@@ -50,7 +50,7 @@ class AuthService
     public static function checkRoles($roles) {
         $roles = (array)$roles;
         $user = AuthService::getUser();
-        $userRole = empty($user) ? 'guest' : $user->getRoleName();
+        $userRole = empty($user) ? 'guest' : $user->getRole();
 
         return in_array($userRole, $roles);
     }

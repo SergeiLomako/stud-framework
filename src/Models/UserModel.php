@@ -31,7 +31,7 @@ class UserModel extends Model
     public function findByCredentials($login, $password) {
 
         $sql = sprintf("SELECT * FROM `%s` WHERE `%s`='%s' AND `%s`='%s'",
-            $this::TABLE_NAME, $this::LOGIN_NAME, (string)$login, $this::PASSWORD_NAME, md5($password));
+            $this::TABLE_NAME, $this::LOGIN_NAME, $login, $this::PASSWORD_NAME, md5($password));
 
         return $this->dbo->setQuery($sql)->getResult($this);
     }
@@ -57,20 +57,16 @@ class UserModel extends Model
      *
      * @return mixed
      */
-    public function getRoleName() {
-
-        $sql = sprintf("SELECT `%s` FROM `%s` WHERE `%s`='%s'",
-            $this::ROLE_TITLE, $this::ROLE_TABLE, $this::PRIMARY_KEY, $this->{$this::ROLE_NAME} );
-
-        $result = $this->dbo->setQuery($sql)->getList(get_class($this));
-        $result = $result[0]->{$this::ROLE_TITLE};
-
-        return $result;
-    }
 
     public function getRole(){
-        $sql = sprintf("SELECT `title` FROM `roles` WHERE `id` = %s", $this->role_id);
+        $sql = sprintf("SELECT `%s` FROM `%s` WHERE `id` = %s", $this::ROLE_TITLE, $this::ROLE_TABLE, $this->{$this::ROLE_NAME});
         $state =  $this->dbo->setQuery($sql)->getResult($this);
         return $state->title;
+    }
+
+    
+    public function findByEmail($email){
+        $sql = sprintf("SELECT * FROM `%s` WHERE `%s`='%s'", $this::TABLE_NAME, $this::LOGIN_NAME, $email);
+        return $this->dbo->setQuery($sql)->getResult($this);
     }
 }
