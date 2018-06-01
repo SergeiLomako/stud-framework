@@ -44,12 +44,13 @@ class AuthService
     /**
      * Check if current user has requested roles
      *
+     * @param $roles
      * @return bool
      */
     public static function checkRoles($roles) {
         $roles = (array)$roles;
         $user = AuthService::getUser();
-        $userRole = empty($user) ? 'guest' : self::$user->getRole();
+        $userRole = empty($user) ? 'guest' : $user->getRoleName();
 
         return in_array($userRole, $roles);
     }

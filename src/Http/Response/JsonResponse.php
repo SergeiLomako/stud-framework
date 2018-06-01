@@ -10,7 +10,11 @@ namespace Mindk\Framework\Http\Response;
 class JsonResponse extends Response
 {
     /**
-     * Response constructor.
+     * Response constructor
+     *
+     * JsonResponse constructor.
+     * @param $body
+     * @param int $code
      */
     public function __construct($body, int $code = 200) {
 

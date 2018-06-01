@@ -21,20 +21,21 @@ class Config
     protected static $instance;
 
     /**
-     * Closed Config constructor and clone.
+     * Closed Config constructor, clone and wakeup
      */
-    protected function __construct() { }
-    protected function __clone() { }
+    private function __construct() { }
+    private function __clone() { }
+    private function __wakeup() { }
 
     /**
      * Config getInstance Singleton
+     *
      * @param array $data
      * @return Config
      */
-    public static function getInstance($data = [])
-    {
-        if(empty(self::$config) && !empty($data))
-        {
+    public static function getInstance($data = []) {
+
+        if(empty(self::$config) && !empty($data)) {
             self::set($data);
         }
 
@@ -46,7 +47,8 @@ class Config
      *
      * @param $file
      */
-    public function loadFromFile($file){
+    public function loadFromFile($file) {
+
         self::$config = include($file);
     }
 
@@ -56,6 +58,7 @@ class Config
      * @param $data
      */
     public static function set($data){
+
         self::$config = $data;
     }
 
@@ -66,30 +69,30 @@ class Config
      *
      * @return mixed
      */
-    public function __get($param_name){
+    public function __get($param_name) {
+
         return isset(self::$config[$param_name]) ? self::$config[$param_name] : null;
     }
 
     /**
      * Recursive getter
      *
-     * @param $key  Key may be complex like: db.host, db.driver, etc
-     * @param $default
-     *
-     * @return mixed
+     * @param null $key
+     * @param null $default
+     * @return array|mixed|null
      */
-    public function get($key = null, $default = null){
+    public function get($key = null, $default = null) {
         $chain = explode('.', $key);
         $node = self::$config;
 
-        if(!empty($chain)){
-            do{
+        if(!empty($chain)) {
+            do {
                 $cell = array_shift($chain);
-                if(!isset($node[$cell])){
+                if(!isset($node[$cell])) {
                     break;
                 }
                 $node = is_array($node) ? $node[$cell] : null;
-            }while(!empty($chain) && !empty($node));
+            } while(!empty($chain) && !empty($node));
         }
 
         return $node ?? $default;
@@ -98,21 +101,20 @@ class Config
     /**
      * Check if key exists
      *
-     * @param $key  Key may be complex like: db.host, db.driver, etc
-     *
+     * @param $key
      * @return bool
      */
-    public function has($key): bool{
+    public function has($key): bool {
         $chain = explode('.', $key);
         $node = self::$config;
 
-        do{
+        do {
             $cell = array_shift($chain);
-            if(!isset($node[$cell])){
+            if(!isset($node[$cell])) {
                 return false;
             }
             $node = $node[$cell];
-        }while(!empty($chain) && !empty($node));
+        } while(!empty($chain) && !empty($node));
 
         return true;
     }
