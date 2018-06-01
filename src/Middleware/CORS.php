@@ -4,6 +4,7 @@ namespace Mindk\Framework\Middleware;
 
 use Mindk\Framework\Http\Request\Request;
 use Mindk\Framework\Http\Response\Response;
+use Mindk\Framework\Config\Config;
 use Optimus\Onion\LayerInterface;
 
 /**
@@ -22,14 +23,14 @@ class CORS implements LayerInterface
     protected $url;
 
     /**
-     * CORS constructor
-     *
+     * CORS constructor.
      * @param Request $request
+     * @param Config $config
      */
-    public function __construct(Request $request, $url) {
+    public function __construct(Request $request, Config $config) {
 
         $this->request = $request;
-        $this->url = $url;
+        $this->url = $config->front_url;
     }
 
     /**
