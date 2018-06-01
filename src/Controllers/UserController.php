@@ -91,7 +91,7 @@ class UserController
         $body = 'Something went wrong';
         $code = 500;
         if($user){
-            $user->token = 0;
+            $user->token = md5(uniqid());;
             $user->save();
             $body = 'Logout';
             $code = 200;
