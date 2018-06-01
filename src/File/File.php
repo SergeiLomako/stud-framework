@@ -23,7 +23,7 @@ class File
      * @return bool
      */
     public function delete($file_path){
-        return unlink($file_path);
+        return !$this->exist($file_path) ?: unlink($file_path);
     }
 
     /**
