@@ -27,24 +27,24 @@ class UserController
             if (empty($model->findByEmail($request->get('login', '', 'email')))) {
                 $login = $request->get('login', '', 'email');
             } else {
-                array_push($errors, [$model::LOGIN_NAME => 'Email already exists']);
+                array_push($errors, ['login' => 'Email already exists']);
             }
         } else {
-            $errors[$model::LOGIN_NAME] = 'Incorrect email';
+            array_push($errors, ['login' => 'Incorrect email']);
         }
         if (strlen($request->get('password', '')) > 5 && $request->get('password', '') === $request->get('confirm_password', '')) {
             $password = $request->get('password', '');
         } elseif (strlen($request->get('password', '')) <= 5) {
-            array_push($errors, [$model::PASSWORD_NAME => 'Password must be at least 6 characters']);
+            array_push($errors, ['password' => 'Password must be at least 6 characters']);
         } else {
-            array_push($errors, [$model::PASSWORD_NAME => 'Passwords do not match']);
+            array_push($errors, ['password' => 'Passwords do not match']);
         }
 
         $status = null;
         $code = 200;
         if (empty($errors)) {
             $token = md5(uniqid());
-            $model->create([$model::LOGIN_NAME => $login, $model::PASSWORD_NAME => md5($password), $model::TOKEN_NAME => $token]);
+            $model->create(['login' => $login, 'password' => md5($password), 'token' => $token]);
             $status = ['token' => $token];
         } else {
             $status = $errors;
@@ -52,15 +52,11 @@ class UserController
         }
 
         return new JsonResponse($status, $code);
-
     }
-
-
-
 
     /**
      * Login through action
-     * 
+     *
      * @param Request $request
      * @param UserModel $model
      * @return string
@@ -77,15 +73,15 @@ class UserController
         }
 
         // Generate new access token and save:
-        $user->{$model::TOKEN_NAME} = md5(uniqid());
+        $user->token = md5(uniqid());
         $user->save();
 
-        return $user->{$model::TOKEN_NAME};
+        return $user->token;
     }
 
     /**
      * Logout
-     * 
+     *
      * @param Request $request
      * @param UserModel $model
      * @return JsonResponse
@@ -95,10 +91,10 @@ class UserController
         $body = 'Something went wrong';
         $code = 500;
         if($user){
-            $user->{$model::TOKEN_NAME} = 0;
+            $user->token = 0;
             $user->save();
             $body = 'Logout';
-            $code = 200; 
+            $code = 200;
         }
         return new JsonResponse($body, $code);
     }

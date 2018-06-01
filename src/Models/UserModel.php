@@ -21,8 +21,8 @@ class UserModel extends Model
      */
     public function findByCredentials($login, $password) {
 
-        $sql = sprintf("SELECT * FROM `%s` WHERE `%s`='%s' AND `%s`='%s'",
-            $this->tableName, $this->login, $login, $this->password, md5($password));
+        $sql = sprintf("SELECT * FROM `%s` WHERE `login`='%s' AND `password`='%s'",
+            $this->tableName, $login, md5($password));
 
         return $this->dbo->setQuery($sql)->getResult($this);
     }
@@ -55,7 +55,12 @@ class UserModel extends Model
         return $state->title;
     }
 
-    
+    /**
+     * Find user by email
+     * 
+     * @param $email
+     * @return mixed
+     */    
     public function findByEmail($email){
         $sql = sprintf("SELECT * FROM `%s` WHERE `login`='%s'", $this->tableName, $email);
         return $this->dbo->setQuery($sql)->getResult($this);
