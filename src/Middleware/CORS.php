@@ -9,10 +9,12 @@ use Optimus\Onion\LayerInterface;
 /**
  * Class ACL Route Middleware
  *
+
  * @package Mindk\Framework\Middleware
  */
 class CORS implements LayerInterface
 {
+
     /**
      * @var Request
      */
@@ -23,7 +25,7 @@ class CORS implements LayerInterface
      *
      * @param Request $request
      */
-    public function __construct(Request $request) {
+    public function __construct(Request $request, $url) {
 
         $this->request = $request;
     }
@@ -32,6 +34,7 @@ class CORS implements LayerInterface
      * Handler
      *
      * @param $object
+
      * @param \Closure $next
      * @return Response|mixed
      */
@@ -43,7 +46,7 @@ class CORS implements LayerInterface
             $response = $next($object);
         }
 
-        $response->setHeader('Access-Control-Allow-Origin', 'http://front.loc:82');
+        $response->setHeader('Access-Control-Allow-Origin', $url);
         $response->setHeader('Access-Control-Allow-Credentials', 'true');
         $response->setHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Origin, Authorization, Accept, Client-Security-Token, Accept-Encoding, APIToken, APIKey');
         $response->setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, DELETE, PUT, PATCH');
@@ -51,3 +54,4 @@ class CORS implements LayerInterface
         return $response;
     }
 }
+

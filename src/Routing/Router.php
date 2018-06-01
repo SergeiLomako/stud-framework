@@ -47,7 +47,6 @@ class Router
             foreach ($this->map as $name => $routeData) {
                 $path = $routeData['path'];
                 $pattern = $this->transformToRegexp($path);
-
                 if(preg_match($pattern, $this->request->getUri(), $matches)) {
                     $method = $this->request->getMethod();
 
