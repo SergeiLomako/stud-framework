@@ -88,7 +88,7 @@ class UserController
      */
     public function logout(Request $request, UserModel $model) {
         $user = $model->findByToken($request->getHeader('X-Auth'));
-        $body = 'Something went wrong';
+        $body = 'You are not logged in';
         $code = 500;
         if($user){
             $user->token = md5(uniqid());;
