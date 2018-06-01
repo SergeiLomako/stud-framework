@@ -6,15 +6,17 @@ use Mindk\Framework\Http\Response\Response;
 
 /**
  * Class NotFoundException
+ *
  * @package Exceptions
  */
 class NotFoundException extends FrameworkException
 {
     /**
-     * @inheritdoc
+     * Add to response
+     *
+     * @return Response
      */
-    public function toResponse(): Response
-    {
+    public function toResponse(): Response {
         $resp = parent::toResponse();
         $resp->code = 404;
 

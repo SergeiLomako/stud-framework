@@ -8,6 +8,7 @@ use Optimus\Onion\LayerInterface;
 
 /**
  * Class ACL Route Middleware
+ *
  * @package Mindk\Framework\Middleware
  */
 class ACL implements LayerInterface
@@ -16,14 +17,16 @@ class ACL implements LayerInterface
      * Handler
      *
      * @param $object
-     * @param Closure $next
+     * @param \Closure $next
+     * @return JsonResponse|mixed
      */
-    public function peel($object, \Closure $next){
+    public function peel($object, \Closure $next) {
+
         // Assuming $object is route object:
         $acl = $object->acl;
 
         if(!empty($acl)) {
-            if(!AuthService::checkRoles($object->acl)){
+            if(!AuthService::checkRoles($object->acl)) {
                 return new JsonResponse('Access denied', 403);
             }
         }

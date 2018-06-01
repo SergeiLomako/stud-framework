@@ -22,20 +22,21 @@ class Request
     /**
      * Request constructor.
      */
-    public function __construct()
-    {
+    public function __construct() {
         $headers = [];
 
         // Parse and cache HTTP headers
-        if(function_exists('getallheaders')){
+        if(function_exists('getallheaders')) {
             $headers = getallheaders();
         } elseif(function_exists('apache_request_headers')) {
             $headers = apache_request_headers();
         } else {
 
             foreach($_SERVER as $key => $value){
-                if ( preg_match('/^HTTP_/i', $key) ) {
-                    $key = str_replace(" ", "-", ucwords(strtolower(str_replace("_"," ",substr($key,5)))));
+                if( preg_match('/^HTTP_/i', $key) ) {
+                    $key = str_replace(" ", "-",
+                        ucwords(strtolower(str_replace("_"," ",substr($key,5)))));
+
                     $headers[$key] = $value;
                 }
             }
@@ -43,8 +44,9 @@ class Request
 
         // Grab all request data:
         $raw_data = $_REQUEST;
+
         if($raw_input = json_decode($this->getRawInput(), true)) {
-            if(!is_array($raw_input)){
+            if(!is_array($raw_input)) {
                 $raw_input = ['_raw' => $raw_input];
             }
 
@@ -85,8 +87,7 @@ class Request
      *
      * @return null
      */
-    public function get(string $name, $default = null, string $type = 'raw'){
-
+    public function get(string $name, $default = null, string $type = 'raw') {
         $value = $this->raw_data[$name] ?? $default;
 
         return $this->filterVar($value, $type);
@@ -136,30 +137,30 @@ class Request
      */
     public function filterVar($data, string $type = 'raw') {
 
-        if($type != 'raw'){
+        if($type != 'raw') {
             switch ($type) {
                 case 'int':
-                    $data = (int) $data;
+                    $data = (int)$data;
                     break;
                 case 'array':
-                    $data = (array) $data;
+                    $data = (array)$data;
                     break;
                 case 'float':
-                    $data = (float) $data;
+                    $data = (float)$data;
                     break;
                 case 'bool':
-                    $data = (bool) $data;
+                    $data = (bool)$data;
                     break;
                 case 'email':
                     $data = filter_var($data, FILTER_VALIDATE_EMAIL);
                     break;
                 case 'string':
-                    $data = (string) $data;
-                    $data = trim(strip_tags(htmlentities($data)));
+                    $data = (string)$data;
+                    $data = trim( strip_tags(htmlentities($data)) );
                     break;
             }
         }
+
         return $data;
-        
     }
 }
