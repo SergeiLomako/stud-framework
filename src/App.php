@@ -80,7 +80,7 @@ class App
             $response = $methodReflection->invokeArgs($controller, $paramset);
 
             // Ensure it's Response subclass or wrap with JsonResponse:
-            if(!($response instanceof Response)) {
+            if(!($response instanceof JsonResponse)) {
                 $response = new JsonResponse($response);
             }
         } else {
