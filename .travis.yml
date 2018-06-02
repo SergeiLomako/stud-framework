@@ -1,0 +1,11 @@
+language: php
+php:
+- '7.1'
+- '7.2'
+install:
+- composer update
+before_script:
+- sudo apt-get install apache2 libapache2-mod-fastcgi
+- sudo service apache2 restart
+before_deploy:
+- composer update
