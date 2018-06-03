@@ -89,8 +89,8 @@ class Validation
 
     public function unique($field, $table_name, $column){
         $namespace = $table_name == 'users' ? '\Mindk\Framework\Models\\' : '\App\Models\\'; 
-        $model_name = ucfirst(substr($table_name, 0, -1)) . 'Model';
-        $model = new $namespace . $model_name($this->db);
+        $model_name = $namespace . ucfirst(substr($table_name, 0, -1)) . 'Model';
+        $model = new $model_name($this->db);
         $check = $model->exist($column, $field);
 
         return empty($check) ? true : [$field => ucfirst($field) . " already exists"];
