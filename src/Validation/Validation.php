@@ -9,21 +9,45 @@
 namespace Mindk\Framework\Validation\Validation;
 
 use Mindk\Framework\Http\Request\Request;
-use Mindk\Framework\File\File;
 use Mindk\Framework\Exceptions\ValidationException;
 
 class Validation
 {
 
+    protected $rules = ['min', 'max', 'file', 'email', 'required', 'confirmed'];
+
     public function validate(Request $request, $data){
         $errors = [];
-        $fields_rules = [];
         foreach($data as $field => $rules){
-            $rules_array = is_int(strpos($rules, '|')) ? explode('|', $rules) : [$rules];
-            $fields_rules += [$field => $rules_array];
+            $field_rules = is_int(strpos($rules, '|')) ? explode('|', $rules) : [$rules];
+            foreach($field_rules as $rule){
+                $rule_array = is_int(strpos($rule, ':')) ? explode(':', $rule) : [$rule];
+                if(!in_array($rule_array[0], $this->rules)){
+                    throw new ValidationException($rule_array[0] . ' not found in rules');
+                }
+                if(count($rule_array) === 1){
+                    $result = $this->{$rule_array[0]}($field);
+                    if(is_array($result)){
+                       $errors += $result;
+                       break;
+                    }
+                }
+                if(count($rule_array) === 2){
+                    $result = $this->{$rule_array[0]}($field, $rule_array[1]);
+                    if(is_array($result)){
+                        $errors += $result;
+                        break;
+                    }
+                }
+                $result = $this->{$rule_array[0]}($field, $rule_array[1], $rule_array[2]);
+                if(is_array($result)){
+                    $errors += $result;
+                    break;
+                }
+            }
         }
         
-        return $fields_rules;
+        return empty($errors) ? true : $errors;
     }
     
     public function min($field, int $min) {
@@ -66,4 +90,5 @@ class Validation
 
         return empty($check) ? true : [$field => ucfirst($field) . " already exists"];
     }
+
 }
