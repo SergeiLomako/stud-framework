@@ -8,6 +8,7 @@
 
 namespace Mindk\Framework\Validation;
 
+use Mindk\Framework\Http\Response\JsonResponse;
 use Mindk\Framework\Http\Request\Request;
 use Mindk\Framework\Exceptions\ValidationException;
 use Mindk\Framework\DB\DBOConnectorInterface;
@@ -51,7 +52,7 @@ class Validation
             }
         }
         
-        return empty($errors) ? true : $errors;
+        return empty($errors) ? true : new JsonResponse($errors, 400);
     }
     
     public function min($field, int $min) {
