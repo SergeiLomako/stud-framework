@@ -28,21 +28,26 @@ class Validation
                     throw new ValidationException($rule_array[0] . ' not found in rules');
                 }
                 if(count($rule_array) === 1){
-                    $result = $this->{$rule_array[0]}($request->get($field));
+                    if($rule_array[0] == 'confirmed'){
+                        $result = $this->{$rule_array[0]}($field, $request->get($field), $request);
+                    }
+                    else {
+                        $result = $this->{$rule_array[0]}($field, $request->get($field));
+                    }
                     if(is_array($result)){
                        $errors += $result;
                        break;
                     }
                 }
                 if(count($rule_array) === 2){
-                    $result = $this->{$rule_array[0]}($request->get($field), $rule_array[1]);
+                    $result = $this->{$rule_array[0]}($field, $request->get($field), $rule_array[1]);
                     if(is_array($result)){
                         $errors += $result;
                         break;
                     }
                 }
                 if(count($rule_array) === 3) {
-                    $result = $this->{$rule_array[0]}($request->get($field), $rule_array[1], $rule_array[2]);
+                    $result = $this->{$rule_array[0]}($field, $request->get($field), $rule_array[1], $rule_array[2]);
                     if (is_array($result)) {
                         $errors += $result;
                         break;
@@ -54,31 +59,31 @@ class Validation
         return empty($errors) ? true : $errors;
     }
     
-    public function min($field, int $min) {
+    public function min($field, $field_value, int $min) {
 
         return strlen($field) >= $min ? true : [$field => ucfirst($field) . " must be at least $min characters"];
     }
     
-    public function max($field, int $max) {
+    public function max($field, $field_value, int $max) {
 
         return strlen($field) <= $max ? true : [$field =>  ucfirst($field) . "must not exceed $max characters"];
     }
 
-    public function file($file_field) {
+    public function file($file_field, $field_value) {
 
         return isset($file_field['tmp_name']) && is_file($file_field['tmp_name']) ? true : [$file_field => ucfirst($file_field) . " is not a file"];
     }
     
-    public function email($field) {
+    public function email($field, $field_value) {
 
         return is_string(filter_var($field, FILTER_VALIDATE_EMAIL)) ? true : [$field => "Incorrect email"];
     }
     
-    public function required($field) {
+    public function required($field, $field_value) {
         return !empty($field) ? true : [$field => ucfirst($field) . " is required"];
     }
     
-    public function confirmed($field, Request $request){
+    public function confirmed($field, $field_value, Request $request){
         $confirmed_field = 'confirmed_' . lcfirst($field);
         if(!$request->has($confirmed_field)){
             throw new ValidationException($confirmed_field . 'not found in Request');
@@ -87,7 +92,7 @@ class Validation
         return $field === $request->get($confirmed_field, null, 'string') ? true : [$field => ucfirst($field) . 's do not match'];
     }
 
-    public function unique($field, $table_name, $column){
+    public function unique($field, $field_value, $table_name, $column){
         $namespace = $table_name == 'users' ? '\Mindk\Framework\Models\\' : '\App\Models\\'; 
         $model_name = $namespace . ucfirst(substr($table_name, 0, -1)) . 'Model';
         if(!class_exists($model_name)){
