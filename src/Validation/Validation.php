@@ -6,7 +6,7 @@
  * Time: 22:52
  */
 
-namespace Mindk\Framework\Validation\Validation;
+namespace Mindk\Framework\Validation;
 
 use Mindk\Framework\Http\Request\Request;
 use Mindk\Framework\Exceptions\ValidationException;
