@@ -61,35 +61,35 @@ class Validation
     
     public function min($field, $field_value, int $min) {
 
-        return strlen($field) >= $min ? true : [$field => ucfirst($field) . " must be at least $min characters"];
+        return strlen($field_value) >= $min ? true : [$field => ucfirst($field) . " must be at least $min characters"];
     }
     
     public function max($field, $field_value, int $max) {
 
-        return strlen($field) <= $max ? true : [$field =>  ucfirst($field) . "must not exceed $max characters"];
+        return strlen($field_value) <= $max ? true : [$field =>  ucfirst($field) . " must not exceed $max characters"];
     }
 
     public function file($file_field, $field_value) {
 
-        return isset($file_field['tmp_name']) && is_file($file_field['tmp_name']) ? true : [$file_field => ucfirst($file_field) . " is not a file"];
+        return isset($field_value['tmp_name']) && is_file($field_value['tmp_name']) ? true : [$file_field => ucfirst($file_field) . " is not a file"];
     }
     
     public function email($field, $field_value) {
 
-        return is_string(filter_var($field, FILTER_VALIDATE_EMAIL)) ? true : [$field => "Incorrect email"];
+        return is_string(filter_var($field_value, FILTER_VALIDATE_EMAIL)) ? true : [$field => "Incorrect email"];
     }
     
     public function required($field, $field_value) {
-        return !empty($field) ? true : [$field => ucfirst($field) . " is required"];
+        return !empty($field_value) ? true : [$field => ucfirst($field) . " is required"];
     }
     
     public function confirmed($field, $field_value, Request $request){
         $confirmed_field = 'confirmed_' . lcfirst($field);
         if(!$request->has($confirmed_field)){
-            throw new ValidationException($confirmed_field . 'not found in Request');
+            throw new ValidationException($confirmed_field . ' not found in Request');
         }
 
-        return $field === $request->get($confirmed_field, null, 'string') ? true : [$field => ucfirst($field) . 's do not match'];
+        return $field_value === $request->get($confirmed_field, null, 'string') ? true : [$field => ucfirst($field) . 's do not match'];
     }
 
     public function unique($field, $field_value, $table_name, $column){
@@ -99,7 +99,7 @@ class Validation
             throw new ValidationException("Table '$table_name' or $model_name not found");
         }
         $model = new $model_name($this->db);
-        $check = $model->exist($column, $field);
+        $check = $model->exist($column, $field_value);
 
         return empty($check) ? true : [$field => ucfirst($field) . " already exists"];
     }
