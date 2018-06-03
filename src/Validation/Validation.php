@@ -84,7 +84,7 @@ class Validation
     }
     
     public function confirmed($field, $field_value, Request $request){
-        $confirmed_field = 'confirmed_' . lcfirst($field);
+        $confirmed_field = 'confirm_' . lcfirst($field);
         if(!$request->has($confirmed_field)){
             throw new ValidationException($confirmed_field . ' not found in Request');
         }
