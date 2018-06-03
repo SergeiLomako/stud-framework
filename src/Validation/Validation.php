@@ -41,10 +41,12 @@ class Validation
                         break;
                     }
                 }
-                $result = $this->{$rule_array[0]}($request->get($field), $rule_array[1], $rule_array[2]);
-                if(is_array($result)){
-                    $errors += $result;
-                    break;
+                if(count($rule_array) === 3) {
+                    $result = $this->{$rule_array[0]}($request->get($field), $rule_array[1], $rule_array[2]);
+                    if (is_array($result)) {
+                        $errors += $result;
+                        break;
+                    }
                 }
             }
         }
