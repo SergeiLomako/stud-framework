@@ -10,13 +10,15 @@ namespace Mindk\Framework\Validation;
 
 use Mindk\Framework\Http\Request\Request;
 use Mindk\Framework\Exceptions\ValidationException;
+use Mindk\Framework\DB\DBOConnectorInterface;
 
 class Validation
 {
+    protected $db;
+    protected $rules = ['min', 'max', 'file', 'email', 'required', 'confirmed', 'unique'];
 
-    protected $rules = ['min', 'max', 'file', 'email', 'required', 'confirmed'];
-
-    public function validate(Request $request, $data){
+    public function validate(Request $request, $data, DBOConnectorInterface $db){
+        $this->db = $db;
         $errors = [];
         foreach($data as $field => $rules){
             $field_rules = is_int(strpos($rules, '|')) ? explode('|', $rules) : [$rules];
@@ -26,20 +28,20 @@ class Validation
                     throw new ValidationException($rule_array[0] . ' not found in rules');
                 }
                 if(count($rule_array) === 1){
-                    $result = $this->{$rule_array[0]}($field);
+                    $result = $this->{$rule_array[0]}($request->get($field));
                     if(is_array($result)){
                        $errors += $result;
                        break;
                     }
                 }
                 if(count($rule_array) === 2){
-                    $result = $this->{$rule_array[0]}($field, $rule_array[1]);
+                    $result = $this->{$rule_array[0]}($request->get($field), $rule_array[1]);
                     if(is_array($result)){
                         $errors += $result;
                         break;
                     }
                 }
-                $result = $this->{$rule_array[0]}($field, $rule_array[1], $rule_array[2]);
+                $result = $this->{$rule_array[0]}($request->get($field), $rule_array[1], $rule_array[2]);
                 if(is_array($result)){
                     $errors += $result;
                     break;
@@ -62,7 +64,7 @@ class Validation
 
     public function file($file_field) {
 
-        return is_file($file_field['tmp_name']) ? true : [$file_field => ucfirst($file_field) . " is not a file"];
+        return isset($file_field['tmp_name']) && is_file($file_field['tmp_name']) ? true : [$file_field => ucfirst($file_field) . " is not a file"];
     }
     
     public function email($field) {
@@ -84,8 +86,9 @@ class Validation
     }
 
     public function unique($field, $table_name, $column){
+        $namespace = $table_name == 'users' ? '\Mindk\Framwork\Models\\' : '\App\Models\\'; 
         $model_name = ucfirst(substr($table_name, 0, -1)) . 'Model';
-        $model = new $model_name();
+        $model = new $namespace . $model_name($this->db);
         $check = $model->exist($column, $field);
 
         return empty($check) ? true : [$field => ucfirst($field) . " already exists"];
