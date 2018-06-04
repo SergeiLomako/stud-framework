@@ -179,7 +179,7 @@ abstract class Model
      * @return bool
      */
     public function fill(Request $request){
-        foreach($request as $key => $val){
+        foreach($request->all() as $key => $val){
             if(array_key_exists($key, $this->fillable)){
                 $this->{$key} = $request->get($key, null, $this->fillable[$key]);
             }
