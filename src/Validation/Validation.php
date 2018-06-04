@@ -171,7 +171,7 @@ class Validation
         }
         $check = $model->exist($column, $field_value);
 
-        return empty($check) ? true : [$field => ucfirst($field) . ' already exists'];
+        return empty($check) ?: [$field => ucfirst($field) . ' already exists'];
     }
 
     /**
