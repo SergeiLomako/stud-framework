@@ -101,7 +101,7 @@ class Validation
         $model = new $model_name($this->db);
         $columns = $model->getColumnsNames();
         if(!in_array($column, $columns)){
-            throw new ValidationException("'$column' not found in '$table_name'");
+            throw new ValidationException("Column '$column' not found in '$table_name'");
         }
         $check = $model->exist($column, $field_value);
 
