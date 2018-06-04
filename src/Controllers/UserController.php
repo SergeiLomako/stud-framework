@@ -25,7 +25,7 @@ class UserController
      * @throws \Mindk\Framework\Exceptions\ModelException
      */
     public function register(Request $request, UserModel $model, Validation $validation, DBOConnectorInterface $db) {
-        $rules = ['login' => 'required|email|unique:users:email',
+        $rules = ['login' => 'required|email|unique:users:login',
                   'password' => 'required|min:6|confirmed'];
         $errors = $validation->validate($request, $rules, $db);
         $status = null;
