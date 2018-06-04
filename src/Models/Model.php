@@ -180,8 +180,8 @@ abstract class Model
      */
     public function fill(Request $request){
         foreach($request as $key => $val){
-            if(in_array($key, $this->fillable)){
-                $this->{$key} = $val;
+            if(array_key_exists($key, $this->fillable)){
+                $this->{$key} = $request->get($key, null, $this->fillable[$key]);
             }
         }
 
