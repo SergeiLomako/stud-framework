@@ -99,6 +99,10 @@ class Validation
             throw new ValidationException("Table '$table_name' or $model_name not found");
         }
         $model = new $model_name($this->db);
+        $columns = $model->getColumnsNames();
+        if(!in_array($column, $columns)){
+            throw new ValidationException("'$column' not found in '$table_name'");
+        }
         $check = $model->exist($column, $field_value);
 
         return empty($check) ? true : [$field => ucfirst($field) . " already exists"];
