@@ -189,7 +189,7 @@ abstract class Model
     }
     
     public function exist($column, $value){
-        $sql = sprintf("SELECT * FROM `%s` WHERE `%s` = `%s`",
+        $sql = sprintf("SELECT * FROM `%s` WHERE `%s` = '%s'",
                        $this->tableName, $column, $value);
 
         return $this->dbo->setQuery($sql)->getResult($this);

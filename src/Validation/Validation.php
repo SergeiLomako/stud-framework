@@ -153,15 +153,14 @@ class Validation
 
     /**
      * Сhecks the field in the specified table for uniqueness
-     *
+     * 
      * @param $field
      * @param $field_value
      * @param $table_name
-     * @param $column
-     * @return array|bool
+     * @return array
      * @throws ValidationException
      */
-    public function unique($field, $field_value, $table_name, $column){
+    public function unique($field, $field_value, $table_name){
         $namespace = $table_name == 'users' ? '\Mindk\Framework\Models\\' : '\App\Models\\'; 
         $model_name = $namespace . ucfirst(substr($table_name, 0, -1)) . 'Model';
         if(!class_exists($model_name)){
@@ -169,10 +168,10 @@ class Validation
         }
         $model = new $model_name($this->db);
         $columns = $model->getColumnsNames();
-        if(!in_array($column, $columns)){
-            throw new ValidationException("Column '$column' not found in '$table_name'");
+        if(!in_array($field, $columns)){
+            throw new ValidationException("Column '$field' not found in '$table_name'");
         }
-        $check = $model->exist($column, $field_value);
+        $check = $model->exist($field, $field_value);
 
         return empty($check) ?: [$field => ucfirst($field) . ' already exists'];
     }
