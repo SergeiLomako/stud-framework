@@ -32,6 +32,9 @@ class Validation
         $errors = [];
         foreach($data as $field => $rules){
             $field_rules = is_int(strpos($rules, '|')) ? explode('|', $rules) : [$rules];
+            if(!in_array('required', $field_rules) && !$request->check($field)){
+                continue;
+            }
             foreach($field_rules as $rule){
                 $rule_array = is_int(strpos($rule, ':')) ? explode(':', $rule) : [$rule];
                 if(!in_array($rule_array[0], $this->rules)){
