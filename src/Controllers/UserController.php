@@ -27,10 +27,10 @@ class UserController
     public function register(Request $request, UserModel $model, Validation $validation, DBOConnectorInterface $db) {
         $rules = ['login' => 'required|email|unique:users:email',
                   'password' => 'required|min:6|confirmed'];
-        $validation->validate($request, $rules, $db);
+        $errors = $validation->validate($request, $rules, $db);
         $status = null;
         $code = 200;
-        if (empty($errors)) {
+        if (!is_array($errors)) {
             $token = md5(uniqid());
             $model->create(['login' => $request->get('login', null, 'string'),
                             'password' => md5($request->get('password', null, 'string')), 'token' => $token]);
