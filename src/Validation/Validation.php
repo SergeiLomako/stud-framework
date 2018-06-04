@@ -193,7 +193,7 @@ class Validation
      * @return array|bool
      */
     public function int($field, $field_value){
-        return is_int($field_value) ? true : [$field => ucfirst($field) . ' is not a integer'];
+        return is_int((int) $field_value) ? true : [$field => ucfirst($field) . ' is not a integer'];
     }
 
 }
