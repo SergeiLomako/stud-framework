@@ -15,8 +15,6 @@ use Mindk\Framework\DB\DBOConnectorInterface;
 class Validation
 {
     protected $db;
-    protected $rules = ['min', 'max', 'file', 'email', 'required',
-                        'confirmed', 'unique', 'string', 'int'];
 
     /**
      * Validate request
@@ -37,7 +35,7 @@ class Validation
             }
             foreach($field_rules as $rule){
                 $rule_array = is_int(strpos($rule, ':')) ? explode(':', $rule) : [$rule];
-                if(!in_array($rule_array[0], $this->rules)){
+                if(!method_exists($this, $rule_array[0])){
                     throw new ValidationException($rule_array[0] . ' not found in rules');
                 }
                 if(count($rule_array) === 1){
