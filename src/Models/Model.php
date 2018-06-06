@@ -5,6 +5,7 @@ namespace Mindk\Framework\Models;
 use Mindk\Framework\DB\DBOConnectorInterface;
 use Mindk\Framework\Exceptions\ModelException;
 use Mindk\Framework\Exceptions\NotFoundException;
+use Mindk\Framework\Http\Request\Request;
 
 /**
  * Basic Model Class
@@ -27,6 +28,11 @@ abstract class Model
      * @var string  DB Table except columns
      */
     protected $except = ['id', 'created_at', 'updated_at'];
+
+    /**
+     * @var string  DB Table fillable columns
+     */
+    protected $fillable = [];
 
     /**
      * @var null
@@ -163,5 +169,29 @@ abstract class Model
 
         return array_diff($columns, $this->except);
 
+    }
+
+
+    /**
+     * Fills the model with request data
+     *
+     * @param Request $request
+     * @return bool
+     */
+    public function fill(Request $request){
+        foreach($request->all() as $key => $val){
+            if(array_key_exists($key, $this->fillable)){
+                $this->{$key} = $request->get($key, null, $this->fillable[$key]);
+            }
+        }
+
+        return true;
+    }
+    
+    public function exist($column, $value){
+        $sql = sprintf("SELECT * FROM `%s` WHERE `%s` = '%s'",
+                       $this->tableName, $column, $value);
+
+        return $this->dbo->setQuery($sql)->getResult($this);
     }
 }

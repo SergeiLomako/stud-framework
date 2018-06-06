@@ -191,5 +191,9 @@ class Request
     public function check($key){
         return  $this->has($key) && !empty($this->get($key));
     }
+    
+    public function all(){
+        return $this->raw_data;
+    }
        
 }
