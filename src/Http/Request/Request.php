@@ -47,6 +47,9 @@ class Request
         $raw_data = $_REQUEST + $_FILES;
         if($this->getMethod() === 'PUT') {
             parse_str($this->getRawInput(),$post_vars);
+            if(is_array(json_decode($this->getRawInput(), true))){
+                $raw_data += json_decode($this->getRawInput(), true);
+            }
             $raw_data += $post_vars;
         }
 
