@@ -75,7 +75,6 @@ abstract class Model
 
         $sql = sprintf("INSERT INTO `%s` (%s) VALUES (%s)", $this->tableName,
             implode(',', array_keys($data)), implode(',',$array_values ));
-
         return $this->dbo->setQuery($sql);
 
     }

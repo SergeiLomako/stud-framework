@@ -26,14 +26,21 @@ class UserController
      */
     public function register(Request $request, UserModel $model, Validation $validation, DBOConnectorInterface $db) {
         $rules = ['login' => 'required|email|unique:users:login',
-                  'password' => 'required|min:6|confirmed'];
+                  'password' => 'required|min:6|confirmed',
+                  'first_name' => 'required|min:2|max:30',
+                  'last_name' => 'required|min:2|max:30',
+                  'phone' => 'required'];
         $errors = $validation->validate($request, $rules, $db);
         $status = null;
         $code = 200;
         if (!is_array($errors)) {
             $token = md5(uniqid());
             $model->create(['login' => $request->get('login', null, 'string'),
-                            'password' => md5($request->get('password', null, 'string')), 'token' => $token]);
+                            'password' => md5($request->get('password', null, 'string')),
+                            'first_name' => $request->get('first_name', null, 'string'),
+                            'last_name' => $request->get('last_name', null, 'string'),
+                            'phone' => $request->get('phone', null, 'int'),
+                            'token' => $token]);
             $status = ['token' => $token];
         } else {
             $status = $errors;
