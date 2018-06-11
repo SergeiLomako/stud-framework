@@ -155,7 +155,8 @@ class Validation
      * @throws ValidationException
      */
     public function unique($field, $field_value, $table_name){
-        $model_name = ucfirst(substr($table_name, 0, -1)) . 'Model';
+        $namespace = $table_name == 'users' ? '\Mindk\Framework\Models\\' : '\App\Models\\';
+        $model_name = $namespace . ucfirst(substr($table_name, 0, -1)) . 'Model';
         $model = Injector::make($model_name);
         $columns = $model->getColumnsNames();
         if(!in_array($field, $columns)){
