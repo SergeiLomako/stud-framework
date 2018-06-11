@@ -10,23 +10,19 @@ namespace Mindk\Framework\Validation;
 
 use Mindk\Framework\Http\Request\Request;
 use Mindk\Framework\Exceptions\ValidationException;
-use Mindk\Framework\DB\DBOConnectorInterface;
+use Mindk\Framework\DI\Injector;
 
 class Validation
 {
-    protected $db;
-
     /**
      * Validate request
      *
      * @param Request $request
      * @param $data
-     * @param DBOConnectorInterface $db
-     * @return array|bool
+     * @return array|null
      * @throws ValidationException
      */
-    public function validate(Request $request, $data, DBOConnectorInterface $db){
-        $this->db = $db;
+    public function validate(Request $request, $data){
         $errors = [];
         foreach($data as $field => $rules){
             $field_rules = is_int(strpos($rules, '|')) ? explode('|', $rules) : [$rules];
@@ -159,12 +155,8 @@ class Validation
      * @throws ValidationException
      */
     public function unique($field, $field_value, $table_name){
-        $namespace = $table_name == 'users' ? '\Mindk\Framework\Models\\' : '\App\Models\\'; 
-        $model_name = $namespace . ucfirst(substr($table_name, 0, -1)) . 'Model';
-        if(!class_exists($model_name)){
-            throw new ValidationException("Table '$table_name' or $model_name not found");
-        }
-        $model = new $model_name($this->db);
+        $model_name = ucfirst(substr($table_name, 0, -1)) . 'Model';
+        $model = Injector::make($model_name);
         $columns = $model->getColumnsNames();
         if(!in_array($field, $columns)){
             throw new ValidationException("Column '$field' not found in '$table_name'");
