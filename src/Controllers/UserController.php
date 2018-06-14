@@ -17,12 +17,14 @@ class UserController
 {
     /**
      * Register through action
-     * 
+     *
      * @param Request $request
      * @param UserModel $model
      * @param Validation $validation
+     * @param DBOConnectorInterface $db
      * @return JsonResponse
      * @throws \Mindk\Framework\Exceptions\ModelException
+     * @throws \Mindk\Framework\Exceptions\ValidationException
      */
     public function register(Request $request, UserModel $model, Validation $validation, DBOConnectorInterface $db) {
         $rules = ['login' => 'required|email|unique:users:login',
