@@ -32,7 +32,7 @@ class Request
             $headers = apache_request_headers();
         } else {
 
-            foreach($_SERVER as $key => $value){
+            foreach($_SERVER as $key => $value) {
                 if( preg_match('/^HTTP_/i', $key) ) {
                     $key = str_replace(" ", "-",
                         ucwords(strtolower(str_replace("_"," ",substr($key,5)))));
@@ -43,7 +43,6 @@ class Request
         }
 
         // Grab all request data:
-
         $raw_data = $_REQUEST + $_FILES;
         if(is_array(json_decode($this->getRawInput(), true))) {
                 $raw_data += json_decode($this->getRawInput(), true);
@@ -80,7 +79,6 @@ class Request
      * @param   string    Name
      * @param   mixed     Default value
      * @param   string    Filter type
-     *
      * @return null
      */
     public function get(string $name, $default = null, string $type = 'raw') {
@@ -105,7 +103,6 @@ class Request
      *
      * @param $name
      * @param null $default
-     *
      * @return mixed|null
      */
     public function getHeader(string $name, $default = null) {
@@ -128,7 +125,6 @@ class Request
      *
      * @param $data
      * @param string $type
-     *
      * @return mixed
      */
     public function filterVar($data, string $type = 'raw') {
@@ -187,7 +183,7 @@ class Request
      * @param $key
      * @return bool
      */
-    public function check($key){
+    public function check($key) {
         return  $this->has($key) && !empty($this->get($key));
     }
     
