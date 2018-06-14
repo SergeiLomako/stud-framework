@@ -85,7 +85,7 @@ class UserController
      * @return JsonResponse
      */
     public function logout(Request $request, UserModel $model) {
-        $user = $model->findByToken($request->getHeader('X-Auth'));
+        $user = $model->findByToken($request->get('token', '', 'string'));
         $body = 'You are not logged in';
         $code = 500;
         if($user){

@@ -186,7 +186,14 @@ abstract class Model
 
         return true;
     }
-    
+
+    /**
+     * Checks if value exists
+     *
+     * @param $column
+     * @param $value
+     * @return mixed
+     */
     public function exist($column, $value){
         $sql = sprintf("SELECT * FROM `%s` WHERE `%s` = '%s'",
                        $this->tableName, $column, $value);
